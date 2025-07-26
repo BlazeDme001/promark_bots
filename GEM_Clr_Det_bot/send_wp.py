@@ -5,9 +5,9 @@ url = "http://whatsapp.zillion.io/api/v1/message/create"
 
 headers = {
 'Username': 'ashish@shreenathgroup.in',
-'Password': 'banbhori0031',
+'Password': '*******',
 'Content-Type': 'application/json',
-'Authorization': 'Basic YXNoaXNoQHNocmVlbmF0aGdyb3VwLmluOmJhbmJob3JpMDAzMQ=='
+'Authorization': 'Basic *************************'
 }
 
 def send_otp_via_wp(mob, otp):
@@ -49,7 +49,7 @@ def send_msg_in_group(group_id=None, msg=None):
         if not msg:
             msg = 'Testing msg'
         id = group_id.replace('@','%40')
-        url = f'http://whatsapp.zillion.io/api/v1/message/create?username=ashish%40shreenathgroup.in&password=banbhori0031&recipientIds={id}&message={msg}'
+        url = f'http://whatsapp.zillion.io/api/v1/message/create?username=ashish%40shreenathgroup.in&password=*******&recipientIds={id}&message={msg}'
 
         response = requests.request("GET", url)
 

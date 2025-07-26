@@ -5,9 +5,9 @@ url = "http://whatsapp.zillion.io/api/v1/message/create"
 
 headers = {
 'Username': 'ashish@shreenathgroup.in',
-'Password': 'banbhori0031',
+'Password': '*******',
 'Content-Type': 'application/json',
-'Authorization': 'Basic YXNoaXNoQHNocmVlbmF0aGdyb3VwLmluOmJhbmJob3JpMDAzMQ=='
+'Authorization': 'Basic *************************'
 }
 
 def send_otp_via_wp(mob, otp):

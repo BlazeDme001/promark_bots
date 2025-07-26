@@ -26,12 +26,12 @@ logging.basicConfig(filename='tender_data.log',
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-NAS_HOST = '192.168.0.9'
+NAS_HOST = '*************'
 NAS_PORT = 22
-NAS_USERNAME = 'dme'
-NAS_PASSWORD = '`1Qs9y]p'
-NAS_UPLOAD_FOLDER = '/TENDER AUTO/'
-# NAS_UPLOAD_FOLDER = '/TENDER AUTO/'
+NAS_USERNAME = '****'
+NAS_PASSWORD = '*******'
+NAS_UPLOAD_FOLDER = '*************'
+# NAS_UPLOAD_FOLDER = '************'
 NAS_UPLOAD_FOLDER_remove = r'/mnt/tender_auto'
 NAS_UPLOAD_FOLDER_1 = r'\\Digitaldreams\tender auto'
 

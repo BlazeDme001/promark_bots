@@ -24,7 +24,7 @@
 
 # # Replace 'your_username' and 'your_password' with your Google account credentials
 # username = 'dme@shreenathgroup.in'
-# password = 'Blaze@456'
+# password = '**********'
 
 # # Path to the Chrome WebDriver executable (change to the path where you have downloaded the WebDriver)
 # webdriver_path = '/path/to/chromedriver'

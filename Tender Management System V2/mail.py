@@ -4,7 +4,7 @@ from configparser import ConfigParser
 import yagmail
 
 user_name = 'dme@shreenathgroup.in'
-password = 'Blaze@456'
+password = '**********'
 
 # to_add = ['hr@shreenathgroup.in']
 # to_add = ['ramit.shreenath@gmail.com']

@@ -14,21 +14,21 @@ import time
 import pdfplumber
 
 db_host = 'localhost'
-db_port = '5432'
+db_port = '5400'
 db_name = 'postgres'
 db_user = 'postgres'
-db_password = '1234'
+db_password = '7980'
 
 # Set the PGPASSWORD environment variable
 os.environ['PGPASSWORD'] = db_password
 
-pg_dump_path = r'C:\Program Files\PostgreSQL\16\bin\pg_dump.exe'
-NAS_HOST = '192.168.0.9'
+pg_dump_path = r'C:\Program Files\PostgreSQL\17\bin\pg_dump.exe'
+NAS_HOST = '******'
 NAS_PORT = 22
-NAS_USERNAME = 'dme'
-NAS_PASSWORD = '`1Qs9y]p'
-# NAS_UPLOAD_FOLDER = '/TENDER AUTO/'
-NAS_UPLOAD_FOLDER = '/TENDER AUTO/bkp_file/'
+NAS_USERNAME = '****'
+NAS_PASSWORD = '********'
+# NAS_UPLOAD_FOLDER = '************'
+NAS_UPLOAD_FOLDER = '*********'
 # NAS_UPLOAD_FOLDER_1 = r'/mnt/tender_auto'
 
 
