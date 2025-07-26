@@ -20,10 +20,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tessera
 
 # Set up Chrome options for downloads
 chrome_options = Options()
-# chrome_options.add_argument('--no-sandbox')
-# chrome_options.add_argument('--incognito')
 chrome_options.add_argument('--start-maximized')
-# chrome_options.add_argument('--disable-dev-shm-usage')
 
 # Define the download folder path
 download_folder = os.path.join(os.getcwd(), 'all_downloads')

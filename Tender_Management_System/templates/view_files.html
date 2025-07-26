@@ -63,7 +63,6 @@
     <ul>
         {% for file in files %}
         <li>
-            <!-- <a href="{{ url_for('open_file', filename=file.replace('/', '@@'), folder_path=folder_path.replace('/', '@@')) }}" target="_blank">{{ file }}</a> -->
             <a href="{{ url_for('open_file', filename=file, folder_path=folder_path) }}" target="_blank">{{ file }}</a>
         </li>
         {% endfor %}

@@ -98,7 +98,7 @@
         <a href="{{ url_for('view_oem') }}">View OEM</a>
         <a href="{{ url_for('search_tenders') }}">Search Tender</a>
     {% endif %}
-    {% if user_id in ('admin', 'raman', 'ashish') %}
+    {% if user_id in ('admin') %}
         <a href="{{ url_for('all_tat_list') }}">All TAT</a>
         <a href="{{ url_for('reports_1') }}">Reports</a>
     {% endif %}
@@ -124,13 +124,6 @@
         <label for="filter_to_whom">Assign To:</label>
         <select class="form-control" id="filter_to_whom" name="filter_to_whom">
             <option value="none">Select</option>
-            <!-- <option value="Gurpreet">Gurpreet</option>
-            <option value="Raman">Raman</option>
-            <option value="Ashish">Ashish</option>
-            <option value="Sonia">Sonia</option>
-            <option value="Farzana">Farzana</option>
-            <option value="Gursimran">Gursimran</option>
-            <option value="Preetinder">Preetinder</option> -->
             {% for name in assign_names %}
                 <option value="{{ name }}">{{ name }}</option>
             {% endfor %}

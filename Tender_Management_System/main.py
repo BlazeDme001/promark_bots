@@ -1,3 +1,4 @@
+
 from flask import Flask, request, render_template, redirect, url_for, send_file, session, make_response, jsonify, flash
 import os
 from werkzeug.utils import secure_filename
@@ -17,31 +18,37 @@ import pandas as pd
 import activity as act
 import send_wp as wp
 
+# ================= GLOBAL CONFIGURATION =================
+LOCAL_BASE_FOLDER = r"E:\Files_dump"
+NAS_UPLOAD_FOLDER = '*************'  # Update as needed
+NAS_HOST = '*************'
+NAS_PORT = 22
+NAS_USERNAME = '****'
+NAS_PASSWORD = '*******'
+ADMIN_EMAILS = ["ramit.shreenath@gmail.com"]
+APPROVAL_EMAILS = ["ramit.shreenath@gmail.com"]
+TENDER_URL_TEMPLATE = "http://103.223.15.47:5010/tenders/?filter_tender_id={tender_id}"
+APPROVE_TENDER_URL_TEMPLATE = "http://103.223.15.47:5010/approve_tenders/?filter_tender_id={tender_id}"
+PENDING_EMD_LIST_URL = "http://103.223.15.47:5010/pending_emd_list"
+EMD_BG_DETAILS_URL = "http://103.223.15.47:5011/view_EMD_BG_details/{tender_id}/{emd_id}"
+APP_SECRET_KEY = '1234567890'
+TENDER_LOG_FILE = 'tender_data.log'
+
 app = Flask(__name__)
 
-logging.basicConfig(filename='tender_data.log',
+logging.basicConfig(filename=TENDER_LOG_FILE,
                     format='%(asctime)s - Line:%(lineno)s - %(levelname)s ::=> %(message)s',
                     filemode='w')
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-NAS_HOST = '*************'
-NAS_PORT = 22
-NAS_USERNAME = '****'
-NAS_PASSWORD = '*******'
-NAS_UPLOAD_FOLDER = '*************'
-# NAS_UPLOAD_FOLDER = '************'
-NAS_UPLOAD_FOLDER_remove = r'/mnt/tender_auto'
-NAS_UPLOAD_FOLDER_1 = r'\\Digitaldreams\tender auto'
-
 app.config['UPLOAD_FOLDER'] = ''
 
 paramiko.util.log_to_file('paramiko.log')
 logging.getLogger("paramiko").setLevel(logging.DEBUG)
 
-
-app.secret_key = '1234567890'
+app.secret_key = APP_SECRET_KEY
 
 class User:
     def __init__(self, username, profile, team):
@@ -60,11 +67,9 @@ def login_required(f):
 
 def authenticate(username, password):
     # query = "SELECT * FROM tender.user_details WHERE username = %s AND password = %s"
-    query = """select ud.user_id , ud."name" ,ud.username ,ud."password" ,uac.profile ,ud.team ,ud.mobile,ud.email 
-    from ums.user_app_connect uac left join ums.user_details ud on uac.user_id = ud.user_id 
-    where (ud.mobile = %s or ud.email = %s or ud.username = %s)
-    and ud.status = 'ACTIVE' and ud."password" = %s
-    and uac.app_id = 'A-3' and uac.ext_col_1 = 'ACTIVE';"""
+    query = """select ud.user_id , ud."name" ,ud.username ,ud."password" ,ud.profile ,ud.team ,ud.mobile,ud.email 
+    from tender.user_details  ud where (ud.mobile = %s or ud.email = %s or ud.username = %s)
+    and ud.status = 'ACTIVE' and ud."password" = %s;"""
     params = [username,username,username,password]
     result = db.get_data_in_list_of_tuple(query, params)
     if result:
@@ -195,9 +200,7 @@ def tenders():
     query += ' order by submission_date asc '
     logger.info(query)
     tenders = db.get_data_in_list_of_tuple(query, parameters)
-    get_assign_names_query = """ select ud.username from ums.user_app_connect uac left join 
-    ums.user_details ud on uac.user_id = ud.user_id where ud.status = 'ACTIVE' and uac.app_id = 'A-3'
-    and uac.ext_col_1 = 'ACTIVE'; """
+    get_assign_names_query = """ select ud.username from tender.user_details  ud where ud.status = 'ACTIVE'; """
     get_assign_names_data = db.get_data_in_list_of_tuple(get_assign_names_query)
     assign_names = [i[0] for i in get_assign_names_data] if get_assign_names_data else []
     return render_template('tenders.html', tenders=tenders, user_id=username, assign_names=assign_names)
@@ -222,7 +225,7 @@ def update_verification(folder_path):
             t_id = db.get_data_in_list_of_tuple(query, {'folder_path': folder_path})
 
             if verification_status == 'approved':
-                recipient_emails = ["raman@shreenathgroup.in", "preetinder@digital-dreams.in","gursimran@digital-dreams.in", "ramit.shreenath@gmail.com"]
+                recipient_emails = ["ramit.shreenath@gmail.com"]
                 email_subject = "New Entry Approved"
                 email_message = f"""
                 Hello Team,
@@ -242,7 +245,6 @@ def update_verification(folder_path):
                 Tender APP BOT
                 """
                 mail.send_mail(to_add=recipient_emails, to_cc=[], sub=email_subject, body=email_message)
-                # mail.send_mail(email_subject, email_message, recipient_emails)
 
         return redirect(url_for('tenders'))
 
@@ -268,6 +270,7 @@ def tender_details(tender_id):
     query = f"SELECT folder_location FROM tender.tender_management WHERE tender_id = '{tender_id}';"
     file_location = db.get_data_in_list_of_tuple(query)[0][0]
     folder_path = file_location.replace(NAS_UPLOAD_FOLDER, "")
+    folder_path = LOCAL_BASE_FOLDER
     return redirect(url_for('view_files', folder_path=folder_path))
 
 
@@ -301,10 +304,7 @@ def insert():
             if count > 0:
                 return "Data already exists in the database!"
 
-            import pathlib  # Make sure this is imported at top
-
-            local_base_folder = r"E:\Files_dump"
-            local_tender_folder = os.path.join(local_base_folder, tender_id)
+            local_tender_folder = os.path.join(LOCAL_BASE_FOLDER, tender_id)
             os.makedirs(local_tender_folder, exist_ok=True)
 
             nas_file_paths = []
@@ -317,7 +317,6 @@ def insert():
                     nas_file_paths.append(file_path)
 
 
-            folder_location = os.path.join(NAS_UPLOAD_FOLDER_1, tender_id)
             folder_location = local_tender_folder
             nas_file_paths_string = ','.join(nas_file_paths)
             inserted_time = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
@@ -352,7 +351,7 @@ def insert():
             }
             db.insert_dict_into_table("tender.tender_folder", folder_dict)
             try:
-                ass_name = 'Farzana' if not 'GEM' in str(tender_id).upper() else 'Manpreet'
+                ass_name = 'set_to_none'
                 tat_query = f""" insert into tender.tender_tat (t_id, stage, status, assign_time, assign_to, ext_col_1) 
                 values('{tender_id}', 'pre_approved', 'Open', now(), '{ass_name}', '{username}'); """
                 db.execute(tat_query)
@@ -361,7 +360,7 @@ def insert():
                 pass
 
             if suc:
-                recipient_emails = ["gurpreetlamby@shreenathgroup.in", "ramit.shreenath@gmail.com"]
+                recipient_emails = ["ramit.shreenath@gmail.com"]
                 email_subject = "New Entry Inserted"
                 email_message = f"""
                 Hello Team,
@@ -385,9 +384,6 @@ def insert():
         tender_id = request.args.get('tender_id')
         customer = request.args.get('customer')
         location = request.args.get('location')
-        # t_query = """select tender_id from tender.tender_management; """
-        # r_t_data = db.get_data_in_list_of_tuple(t_query)
-        # t_data = [i[0] for i in r_t_data]
         return render_template('insert.html', tender_id=tender_id, customer=customer, location=location, t_data=t_data)
 
 
@@ -566,9 +562,7 @@ def approve_tenders():
     except:
         get_oem = []
 
-    get_assign_names_query = """ select ud.username from ums.user_app_connect uac left join 
-    ums.user_details ud on uac.user_id = ud.user_id where ud.status = 'ACTIVE' and uac.app_id = 'A-3'
-    and uac.ext_col_1 = 'ACTIVE'; """
+    get_assign_names_query = """ select ud.username from tender.user_details  ud where ud.status = 'ACTIVE'; """
     get_assign_names_data = db.get_data_in_list_of_tuple(get_assign_names_query)
     assign_names = [i[0] for i in get_assign_names_data] if get_assign_names_data else []
 
@@ -658,8 +652,8 @@ def update_tender_status_remarks(tender_id):
         if not varification:
             varification = 'approved'
 
-        local_base_folder = r"E:\Files_dump"
-        local_tender_folder = os.path.join(local_base_folder, tender_id)
+        # Use global LOCAL_BASE_FOLDER
+        local_tender_folder = os.path.join(LOCAL_BASE_FOLDER, tender_id)
         os.makedirs(local_tender_folder, exist_ok=True)
 
         files = request.files.getlist('document')
@@ -713,7 +707,7 @@ def update_tender_status_remarks(tender_id):
 
         if reminder_for and reminder_for != 'none':
             rem_ins_query = f"""INSERT INTO tender.rem_tenders (tender_id,rem_for,for_date, user_id)
-	                VALUES ('{str(tender_id)}','{str(reminder_for)}','{str(reminder_date)}', '{str(username)}');"""
+                    VALUES ('{str(tender_id)}','{str(reminder_for)}','{str(reminder_date)}', '{str(username)}');"""
             db.execute(rem_ins_query)
 
         try:
@@ -725,7 +719,7 @@ def update_tender_status_remarks(tender_id):
                 if not to_whom or str(to_whom).lower() == 'none':
                     logger.info("not to_whom or to_whom == 'None':")
                     time_ins_query = f""" insert into tender.tender_tat (t_id, stage, status, assign_time, assign_to, ext_col_1) 
-                    values('{str(tender_id)}', '{varification}', '{status}', now(), 'GurpreetL', '{username}') ; """
+                    values('{str(tender_id)}', '{varification}', '{status}', now(), 'no_user', '{username}') ; """
                     logger.info(time_ins_query)
                     db.execute(time_ins_query)
                 elif check_last_data[0][1] != to_whom:
@@ -736,7 +730,7 @@ def update_tender_status_remarks(tender_id):
                     db.execute(time_ins_query)
             else:
                 time_ins_query = f""" insert into tender.tender_tat (t_id, stage, status, assign_time, assign_to, ext_col_1) 
-                values('{str(tender_id)}', '{varification}', '{status}', now(), 'GurpreetL', '{username}') ; """
+                values('{str(tender_id)}', '{varification}', '{status}', now(), 'no_user', '{username}') ; """
                 logger.info(time_ins_query)
                 db.execute(time_ins_query)
         except:
@@ -747,7 +741,7 @@ def update_tender_status_remarks(tender_id):
 
         if suc:
                 recipient_emails = ["ramit.shreenath@gmail.com"]
-                to_whom_mail_query = f""" select ud.email from ums.user_details ud
+                to_whom_mail_query = f""" select ud.email from tender.user_details  ud
                 where ud.status = 'ACTIVE' and ud.username = '{to_whom}';"""
                 to_whom_mail_data = db.get_data_in_list_of_tuple(to_whom_mail_query)
                 recipient_emails.append(to_whom_mail_data[0][0]) if to_whom_mail_data else recipient_emails.append("ramit.shreenath@gmail.com")
@@ -770,8 +764,7 @@ def update_tender_status_remarks(tender_id):
                 Tender APP BOT
                 """
                 if status in ("Submitted", "Under Consideration"):
-                    recipient_emails.append("raman@shreenathgroup.in")
-                    recipient_emails.append("ashish@shreenathgroup.in")
+                    pass
                 mail.send_mail(to_add=recipient_emails, to_cc=[], sub=email_subject, body=email_message)
                 # send_email(email_subject, email_message, recipient_emails)
 
@@ -787,9 +780,7 @@ def update_tender_status_remarks(tender_id):
         data_1 = db.get_row_as_dframe(query_1)
         
         # query_user_details = f"""select ext_col_1 from tender.user_details where ext_col_1 is not null or ext_col_1 not in ('', ' ') ;"""
-        query_user_details = f"""select ud.username,uac.profile from ums.user_app_connect uac 
-        left join ums.user_details ud on uac.user_id = ud.user_id where ud.status = 'ACTIVE' 
-        and uac.app_id = 'A-3' and uac.ext_col_1 = 'ACTIVE';"""
+        query_user_details = f"""select ud.username, ud.profile from tender.user_details  ud where ud.status = 'ACTIVE';"""
         data_res_det = db.get_data_in_list_of_tuple(query_user_details)
         users = [i[0] for i in data_res_det if i[0]]
         current_status = data[0][0]
@@ -855,11 +846,9 @@ def view_files(folder_path, t_id):
             except:
                 pass
 
-    tender_id = folder_path.split('\\')[-1]
-    # tender_id = folder_path.split('/')[-1]
+    # tender_id = folder_path.split('\\')[-1]
+    tender_id = t_id
     files = []
-    # print('view_files')
-    # print(folder_path)
     if folder_path not in ("", " ", 'none', 'None'):
         # print('Checking for file path')
         for root, _, filenames in os.walk(folder_path):
@@ -909,8 +898,8 @@ def update_emd_details(tender_id):
             logger.error(f"Error while preparing BG details: {str(e)}")
             bg_details = None
 
-        local_base_folder = r"E:\Files_dump"
-        emd_folder = os.path.join(local_base_folder, tender_id, "EMD Documents")
+        # Use global LOCAL_BASE_FOLDER
+        emd_folder = os.path.join(LOCAL_BASE_FOLDER, tender_id, "EMD Documents")
         os.makedirs(emd_folder, exist_ok=True)
 
         files = request.files.getlist('document')
@@ -924,7 +913,7 @@ def update_emd_details(tender_id):
                 except Exception as e:
                     logger.error(f"Failed to save EMD file locally: {str(e)}")
 
-        folder_location = os.path.join(NAS_UPLOAD_FOLDER_1, tender_id, "EMD Documents")
+        folder_location = emd_folder
 
         logger.info(f'EMD form is {emd_form}')
         query = f"""UPDATE tender.tender_emd SET emd_required = '{emd_required}', emd_form = '{emd_form}', emd_amount = '{emd_amount}',
@@ -944,12 +933,11 @@ def update_emd_details(tender_id):
                 file_path = os.path.join(folder_location, file)
                 attachments.append(file_path)
         if emd_required in ('Yes', 'exempted'):
-            # to_add = ["raman@shreenathgroup.in","seacc31@gmail.com","ramit.shreenath@gmail.com"]
-            to_add = ["raman@shreenathgroup.in","ramit.shreenath@gmail.com"]
+            to_add = ["ramit.shreenath@gmail.com"]
             to_cc = None
             sub = f"EMD details for {tender_id}"
             body = f"""
-            Hello Raman Sir,
+            Hello Sir,
 
             EMD Required: {emd_required}
             EMD Type: {emd_form}
@@ -1068,8 +1056,8 @@ def view_EMD_BG_details(tender_id, emd_id):
             except:
                 file_loc = None
             if files:
-                local_base_folder = r"E:\Files_dump"
-                emd_folder = os.path.join(local_base_folder, tender_id, "EMD Documents")
+                # Use global LOCAL_BASE_FOLDER
+                emd_folder = os.path.join(LOCAL_BASE_FOLDER, tender_id, "EMD Documents")
                 os.makedirs(emd_folder, exist_ok=True)
 
                 for file in files:
@@ -1135,22 +1123,21 @@ def view_EMD_BG_details(tender_id, emd_id):
             to_add = ['ramit.shreenath@gmail.com']
             to_cc = []
             if new_emd_status == 'For Approval - Admin':
-                to_add.append('raman@shreenathgroup.in')
-                to_cc.append('gursimran@digital-dreams.in')
+                to_add.append('')
+                to_cc.append('')
             elif new_emd_status == 'For Tender Team':
-                to_add.append('gursimran@digital-dreams.in')
-                to_cc.append('raman@shreenathgroup.in')
+                to_add.append('')
+                to_cc.append('')
             elif new_emd_status == 'For Approval - Super Admin':
-                to_add.append('ashish@shreenathgroup.in')
-                to_cc.append('raman@shreenathgroup.in')
+                to_add.append('')
+                to_cc.append('')
             elif new_emd_status == 'For Accounts':
-                to_add.append('viyomta@digtal-dreams.in')
-                to_cc.append('ashish@shreenathgroup.in')
+                to_add.append('')
+                to_cc.append('')
             print(to_add)
 
             mail.send_mail(to_add=to_add, to_cc=to_cc, sub=sub, body=body)
             wp.send_msg_in_group(msg=body)
-            # return redirect(url_for('view_EMD_BG_details', tender_id=tender_id, emd_id=emd_id))
 
             return redirect(url_for('view_EMD_BG_details', tender_id=tender_id, emd_id=emd_id))
 
@@ -1197,8 +1184,8 @@ def update_EMD_details_fin(tender_id):
         time_stamp = datetime.datetime.now().strftime('%d-%b-%Y %H:%M:%S')
 
         files = request.files.getlist('document')
-        local_base_folder = r"E:\Files_dump"
-        emd_folder = os.path.join(local_base_folder, tender_id, "EMD Documents")
+        # Use global LOCAL_BASE_FOLDER
+        emd_folder = os.path.join(LOCAL_BASE_FOLDER, tender_id, "EMD Documents")
         os.makedirs(emd_folder, exist_ok=True)
 
         for file in files:
@@ -1229,7 +1216,7 @@ def update_EMD_details_fin(tender_id):
         loc = data_2[0][0]
 
         if suc:
-                recipient_emails = ["raman@shreenathgroup.in", "ramit.shreenath@gmail.com"]
+                recipient_emails = ["ramit.shreenath@gmail.com"]
                 email_subject = f"tender ID: {str(tender_id)}, Location: {loc}"
                 email_message = f"""
                 Hello Team,
@@ -1516,7 +1503,7 @@ def update_tender_status_1():
     if selected_tenders_str:
         selected_tenders = selected_tenders_str.split(',')
         tender_ids = tuple(tender_id.strip() for tender_id in selected_tenders)
-        ass_name = 'Farzana' if 'gem' not in str(tender_ids).lower() else 'Manpreet'
+        ass_name = 'set_to_none'
         # Update the verification status for selected tenders in the database
         update_query = f"UPDATE tender.tender_management SET verification_1 = '{status}', user_id = '{username}' WHERE tender_id IN {tender_ids}"
         if len(tender_ids) == 1:
@@ -1636,7 +1623,7 @@ def update_tender(tender_id):
 
         query_emd = f"""update tender.tender_emd set emd_amount = '{emd}' where tender_id = '{tender_id}';"""
         db.execute(query_emd)
-        ass_name = 'Farzana' if 'gem' not in str(tender_id).lower() else 'Manpreet'
+        ass_name = "set_to_none"
         tat_query = f"""INSERT INTO tender.tender_tat (t_id, stage, status, assign_time, assign_to, ext_col_1)
                         VALUES ('{tender_id}', 'pre_approved', 'Open', NOW(), '{ass_name}', '{username}'); """
 
