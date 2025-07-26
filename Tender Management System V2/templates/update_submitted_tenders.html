@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Tender</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Update Tender</h1>
+        <form method="POST" action="/for_submit_update_tender">
+            <div>
+                <h2 class="mb-4">Tender ID: {{ tender_data['tender_id'] }}</h2>
+                <h5>Customer: </h5><p>{{ tender_data['customer'] }}</p>
+                <h5>Name of Work: </h5><p>{{ tender_data['name_of_work'] }}</p>
+                <h5>Location: </h5><p>{{ tender_data['location'] }}</p>
+                <h5>Site Address: </h5><p>{{ tender_data['link'] }}</p>
+                <h5>Submission Date: </h5><p>{{ tender_data['sub_date'] }}</p>
+            </div>
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select class="form-control" id="status" name="status">
+                    <option value="Submitted" {% if tender_data['status'] == 'Submitted' %}selected{% endif %}>Submitted</option>
+                    <option value="Submitted-L1" {% if tender_data['status'] == 'Submitted-L1' %}selected{% endif %}>Submitted-L1</option>
+                    <option value="Close-WIN" {% if tender_data['status'] == 'Close-WIN' %}selected{% endif %}>Close-WIN</option>
+                    <option value="Close-LOSE" {% if tender_data['status'] == 'Close-LOSE' %}selected{% endif %}>Close-LOSE</option>
+                    <option value="Close-Cancel" {% if tender_data['status'] == 'Close-Cancel' %}selected{% endif %}>Close-Cancel</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="lose_reason">Lose Reason:</label>
+                <select class="form-control" id="lose_reason" name="lose_reason">
+                    <option value="">Select</option>
+                    <option value="Bider Disqualify" {% if tender_data['lose_reason'] == 'Bider Disqualify' %}selected{% endif %}>Bider Disqualify</option>
+                    <option value="Product Disqualify" {% if tender_data['lose_reason'] == 'Product Disqualify' %}selected{% endif %}>Product Disqualify</option>
+                    <option value="Financial Disqualify" {% if tender_data['lose_reason'] == 'Financial Disqualify' %}selected{% endif %}>Financial Disqualify</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="lose_remarks">Lose Remarks:</label>
+                <textarea class="form-control" id="lose_remarks" name="lose_remarks" rows="4" cols="50">{{ tender_data['lose_remarks'] }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="l1_amount">L1 Amount:</label>
+                <input type="number" step="0.01" class="form-control" id="l1_amount" name="l1_amount" value="{{ tender_data['l1_amount'] }}">
+            </div>
+
+            <div class="form-group">
+                <label for="our_amount">Our Amount:</label>
+                <input type="number" step="0.01" class="form-control" id="our_amount" name="our_amount" value="{{ tender_data['our_amount'] }}">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

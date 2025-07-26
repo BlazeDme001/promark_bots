@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TAT List</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Add DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <!-- Add jQuery and DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    <!-- Add Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px auto;
+            background-color: white;
+            box-shadow: 0px 0px 50px rgba(0, 0, 0, 0.2);
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            position: relative;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>All TAT List</h1><br>
+    <a href="{{ url_for('tenders') }}" class="btn btn-secondary">Go to Main Page</a>
+    <table id="tatTable" class="display">
+        <thead>
+            <tr>
+                <th class="sortable" data-column-index="0">Tender ID</th>
+                <!-- Iterate over columns dynamically -->
+                {% for stage in pivot_table.columns[1:] %}
+                <th class="sortable" data-column-index="{{ loop.index0 }}">{{ stage }} (DD:HH:MM:SS)</th>
+                {% endfor %}
+                <th data-column-index="0">Oem TAT</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for index, row in pivot_table.iterrows() %}
+                <tr>
+                    <td><a href="{{ url_for('tat_list', id=row.t_id) }}">{{ row.t_id }}</a></td>
+                    <!-- Iterate over row values dynamically -->
+                    {% for stage in pivot_table.columns[1:] %}
+                    <td data-seconds="{{ row[stage] | default(0) }}">
+                        {% set seconds = row[stage] | default(0) | int %}
+                        {{ '{:02d}:{:02d}:{:02d}:{:02d}'.format(seconds // 86400, (seconds // 3600) % 24, (seconds // 60) % 60, seconds % 60) }}
+                    </td>
+                    {% endfor %}
+                    <td><a href="{{ url_for('oem_tat', id=row.t_id) }}" class="btn btn-primary" target="_blank">View OEM TAT</a></td>
+                </tr>
+                {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        $(document).ready(function () {
+            $('#tatTable').DataTable({
+                "paging": true,
+                "ordering": true,
+                "order": [],
+                "columnDefs": [
+                    {
+                        "targets": [-6, -5, -4, -3, -2],  // Target the 3rd last, 2nd last columns
+                        "render": function (data, type, row) {
+                            // Display the formatted time
+                            return type === 'sort' ? formatTime(data, type) : data;
+                        }
+                    }
+                ]
+            });
+    
+            function formatTime(time, type) {
+                // Assuming time is already in seconds
+                return type === 'sort' ? time : formatTimeInDDHHMMSS(time);
+            }
+            
+            function formatTimeInDDHHMMSS(seconds) {
+                const days = Math.floor(seconds / (24 * 3600));
+                const hours = Math.floor((seconds % (24 * 3600)) / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const remainingSeconds = Math.floor(seconds % 60);
+            
+                return `${days}:${hours}:${minutes}:${remainingSeconds}`;
+            }
+        });
+    </script>
+          
+</body>
+</html>
+

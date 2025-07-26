@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All OEM List</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #daf3dd;
+        }
+    
+        h1 {
+            color: #333;
+            text-align: center;
+            font-family: 'Courier New Bold';
+        }
+    
+        table {
+            background-color: #f1f3db;
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    
+        th {
+            background-color: #cce988;
+            color: #333;
+            font-size: 18px;
+            padding: 10px;
+        }
+    
+        td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e5eca5;
+        }
+    
+        tr:hover {
+            background-color: #93a1ec;
+        }
+        .wider-column {
+            max-width: 500px;
+            min-width: 300px;
+            white-space: wrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        p {
+            color: #666;
+        }
+        
+        a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3533b7;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        a:hover {
+            background-color: #23527c;
+        }
+        
+        .filter-form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .filter-input {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+        
+        .filter-submit {
+            padding: 5px 10px;
+            background-color: #337ab7;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>All OEM List</h1>
+    <a href="{{ url_for('tenders') }}" class="btn btn-secondary">Go to Main Page</a>
+    <br></br>
+    <form class="filter-form" action="{{ url_for('view_oem') }}" method="get">
+        <div class="col-md-12">
+            <div class="form-row">
+                <div class="col-md-2">
+                    <label for="filter_tender_id">Tender ID:</label>
+                    <input class="filter-input" type="text" id="filter_tender_id" name="filter_tender_id" placeholder="Enter tender ID">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control" id="filter_oem" name="filter_oem">
+                        <option value="none">Select OEM</option>
+                        {% for oem in names %}
+                            <option value="{{ oem }}">{{ oem }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- <label for="filter_status">Status:</label>
+        <input class="filter-input" type="text" id="filter_status" name="filter_status" placeholder="Enter Status"> -->
+
+        <button class="filter-submit" type="submit">Filter</button>
+    </form>
+
+    {% if oems %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Sl No.</th>
+                    <th>Tender ID</th>
+                    <th>OEM</th>
+                    <th>Status</th>
+                    <th>Send Date</th>
+                    <th>Received Date</th>
+                    <th class='wider-column'>Remarks</th>
+                    <th>Submission Date</th>
+                    <th>Updated By</th>
+                    <th>Update</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for oem in oems %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ oem[0] }}</td>
+                        <td>{{ oem[1] }}</td>
+                        <td>{{ oem[2] }}</td>
+                        <td>{{ oem[3] }}</td>
+                        <td>{{ oem[4] }}</td>
+                        <td class='wider-column'>{{ oem[5] }}</td>
+                        <td>{{ oem[7] }}</td>
+                        <td>{{ oem[6] }}</td>
+                        <td>
+                            <a href="{{ url_for('update_oem_in_tenders', t_id=oem[0]) }}" class="btn btn-primary" target="_blank">OEM data</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No OEM found.</p>
+    {% endif %}
+</body>
+</html>

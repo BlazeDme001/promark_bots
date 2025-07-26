@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .update-btns {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .update-btns button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .update-btns button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>List of Files</h1>
+    <p>Tender ID: {{ tender_id }}</p>
+    <p>Folder Location: {{ folder_path }}</p>
+    <a href="{{ folder_path }}" target="_blank">{{ folder_path }}</a>
+    <p>Test</p>
+    <ul>
+        {% for file in files %}
+        <li>
+            <!-- <a href="{{ url_for('open_file', filename=file.replace('/', '@@'), folder_path=folder_path.replace('/', '@@')) }}" target="_blank">{{ file }}</a> -->
+            <a href="{{ url_for('open_file', filename=file, folder_path=folder_path) }}" target="_blank">{{ file }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% if user_id not in ('trial') %}
+    <div class="update-btns">
+        <form action="" method="POST" onsubmit="disableButton()">
+            <input type="hidden" name="button_clicked" value="open_folder">
+            <button type="submit">Open Folder</button>
+        </form>
+    </div>
+    {% endif %}
+    <script>
+                function disableButton() {
+                var submitBtn = document.getElementById("update-btns");
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Opening...";
+            }
+    </script>
+</body>
+</html>

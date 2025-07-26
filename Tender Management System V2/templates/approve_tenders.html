@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Approved Tenders</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            margin: 20px;
+        }
+
+        .form-row {
+            margin-bottom: 10px;
+        }
+        .form-control {
+            font-size: 11px; /* Adjust font size for form controls */
+        }
+        label {
+            font-size: 11px; /* Adjust font size for labels */
+        }
+        .action-btn {
+            display: flex;
+            justify-content: center;
+        }
+
+        .action-btn a {
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+        
+        .action-btn a:hover {
+            text-decoration: none;
+        }
+
+        th {
+            background-color: #8fb6db;
+            text-align: center;
+            padding: 8px;
+        }
+
+        td, th {
+            padding: 8px;
+            font-size: 12px; /* Adjust font size for a more compact layout */
+            white-space: normal; /* Allow text to wrap */
+        }
+
+        tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        tr:hover {
+            background-color: #d2b7f5;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1 class="mt-4">Approved Tenders</h1>
+        <a href="{{ url_for('tenders') }}" class="btn btn-secondary mb-3">Go to Main Page</a>
+        <form>
+            <div class="form-row">
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="filter_tender_id" placeholder="Tender ID">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="filter_customer" placeholder="Customer">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="filter_name_of_work" placeholder="Name of Work">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="filter_done" placeholder="Status">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="filter_days_old" placeholder="Enter Days">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-md-2">
+                    <label for="filter_to_whom">Assign To</label>
+                    <select class="form-control" id="filter_to_whom" name="filter_to_whom">
+                        <option value="none">Select Assign To</option>
+                        <!-- <option value="Gurpreet">Gurpreet</option>
+                        <option value="Manpreet">Manpreet</option>
+                        <option value="Raman">Raman</option>
+                        <option value="Ashish">Ashish</option>
+                        <option value="Sonia">Sonia</option>
+                        <option value="Farzana">Farzana</option>
+                        <option value="Gursimran">Gursimran</option>
+                        <option value="Preetinder">Preetinder</option> -->
+                        {% for name in assign_names %}
+                            <option value="{{ name }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter_rem_for">Reminder For</label>
+                    <select class="form-control" id="filter_rem_for" name="filter_rem_for">
+                        <option value="none">Reminder For</option>
+                        <!-- <option value="Gurpreet">Gurpreet</option>
+                        <option value="Manpreet">Manpreet</option>
+                        <option value="Raman">Raman</option>
+                        <option value="Ashish">Ashish</option>
+                        <option value="Sonia">Sonia</option>
+                        <option value="Farzana">Farzana</option>
+                        <option value="Gursimran">Gursimran</option>
+                        <option value="Preetinder">Preetinder</option> -->
+                        {% for name in assign_names %}
+                            <option value="{{ name }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter_rem_start_date">Reminder Start Date</label>
+                    <input type="date" class="form-control" name="filter_rem_start_date" id="filter_rem_start_date" placeholder="Enter Reminder start date">
+                </div>
+                <div class="col-md-2">
+                    <label for="filter_rem_end_date">Reminder End Date</label>
+                    <input type="date" class="form-control" name="filter_rem_end_date" id="filter_rem_end_date" placeholder="Enter Reminder end date">
+                </div>
+                <div class="col-md-2">
+                    <label for="filter_oem">Enter Oem</label>
+                    <select class="form-control" id="filter_oem" name="filter_oem">
+                        <option value="none">Select OEM</option>
+                        {% for oem in get_oem %}
+                            <option value="{{ oem }}">{{ oem }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter_rem_for">Inserted By</label>
+                    <select class="form-control" id="filter_ins_by" name="filter_ins_by">
+                        <option value="none">Inserted By</option>
+                        <option value="bot">BOT</option>
+                        <option value="not_bot">Manual</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-md-2">
+                    <label for="filter_start_date">Submit Start Date</label>
+                    <input type="date" class="form-control" name="filter_start_date" id="filter_start_date" placeholder="Enter start date">
+                </div>
+                <div class="col-md-2">
+                    <label for="filter_end_date">Submit End Date</label>
+                    <input type="date" class="form-control" name="filter_end_date" id="filter_end_date" placeholder="Enter end date">
+                </div>
+                <div class="col-md-2">
+                    <label for="filter_pbm_start_date">PBM Start Date</label>
+                    <input type="date" class="form-control" name="filter_pbm_start_date" id="filter_pbm_start_date" placeholder="Enter PBM start date">
+                </div>
+                <div class="col-md-2">
+                    <label for="filter_pbm_end_date">PBM End Date</label>
+                    <input type="date" class="form-control" name="filter_pbm_end_date" id="filter_pbm_end_date" placeholder="Enter PBM end date">
+                </div>
+                <div class="col-md-2">
+                    <label for="filter_assign_start_date">Enter Assign start date</label>
+                    <input type="date" class="form-control" name="filter_assign_start_date" id="filter_assign_start_date" placeholder="Enter Assign start date">
+                </div>
+                <div class="col-md-2">
+                    <label for="filter_assign_end_date">Enter Assign end date</label>
+                    <input type="date" class="form-control" name="filter_assign_end_date" id="filter_assign_end_date" placeholder="Enter Assign end date">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div><br>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Sl No.</th>
+                        <th>Tender ID</th>
+                        <th>Customer</th>
+                        <th class="wider-column">Name of Work</th>
+                        <th>Submission Date</th>
+                        <th>Status</th>
+                        <th class="wider-column">Pre Bid Meeting</th>
+                        <th class="wider-column">Remarks</th>
+                        <th>Assign To</th>
+                        <th>Assign Time</th>
+                        <th>Catagory</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tender in tenders %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ tender[0] }}</td>
+                        <td>{{ tender[1] }}</td>
+                        <td class="wider-column">{{ tender[2] }}</td>
+                        <td>{{ tender[3] }}</td>
+                        <td>{{ tender[6] }}</td>
+                        <td class="wider-column">{{ tender[10] }}</td>
+                        <td class="wider-column">{{ tender[7] }}</td>
+                        <td>{{ tender[9] }}</td>
+                        <td>{{ tender[13] }}</td>
+                        <td>{{ tender[12] }}</td>
+                        <td class="action-btn">
+                            <a href="{{ url_for('view_tender_details', tender_id=tender[0]) }}" class="btn btn-primary">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        var startTime = new Date();
+        var endTime;
+    
+        // Function to calculate and log the time spent
+        function logTimeSpent() {
+            endTime = new Date();
+            var timeSpent = (endTime - startTime) / 1000; // Time spent in seconds
+    
+            // Send the timeSpent value to your Flask server (you can use AJAX or fetch)
+            fetch('/log_time_spent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ timeSpent: timeSpent, page: 'Approve Tender Page' }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Tender Page', data);
+                })
+                .catch(error => {
+                    console.error('Error: Tender Page:', error);
+                });
+        }
+    
+        // Event listeners to track tab visibility changes
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'hidden') {
+                // Tab is inactive
+                logTimeSpent();
+            }
+            else {
+                // Tab is active
+                startTime = new Date();
+            }
+        });
+
+    </script>
+
+</body>
+</html>

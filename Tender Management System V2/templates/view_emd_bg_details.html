@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View/Edit EMD/BG Details</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .collapse-section {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>EMD/BG Details</h1>
+        <form id="details-form" method="POST" action="{{ url_for('view_EMD_BG_details', tender_id=details[0][1], emd_id=details[0][0]) }}">
+            {% if details %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Tender ID: {{ details[0][1] }}</h5>
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Status</th>
+                                    <td>
+                                        <select class="form-control" id="status" name="status" >
+                                            <option value="NA" {% if tender_status == 'NA' %}selected{% endif %}>NA</option>
+                                            <option value="WIP-FOR EMD" {% if tender_status == 'WIP-FOR EMD' %}selected{% endif %}>WIP-FOR EMD</option>
+                                            <option value="WIP-EMD Done" {% if tender_status == 'WIP-EMD Done' %}selected{% endif %}>WIP-EMD Done</option>
+                                            <option value="EMD Cancelled" {% if tender_status == 'EMD Cancelled' %}selected{% endif %}>EMD Cancelled</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">EMD Form</th>
+                                    <td>
+                                        <div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="emd_form[]" id="emd_form_pbg" value="PBG" {% if 'PBG' in emd_form_list %}checked{% endif %} >
+                                                <label class="form-check-label" for="emd_form_pbg">PBG</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="emd_form[]" id="emd_form_fd" value="FD" {% if 'FD' in emd_form_list %}checked{% endif %} >
+                                                <label class="form-check-label" for="emd_form_fd">FD</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="emd_form[]" id="emd_form_dd" value="DD" {% if 'DD' in emd_form_list %}checked{% endif %} >
+                                                <label class="form-check-label" for="emd_form_dd">DD</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="emd_form[]" id="emd_form_bankers_cheque" value="Bankers Cheque" {% if 'Bankers Cheque' in emd_form_list %}checked{% endif %} >
+                                                <label class="form-check-label" for="emd_form_bankers_cheque">Bankers Cheque</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="emd_form[]" id="emd_form_online" value="Online" {% if 'Online' in emd_form_list %}checked{% endif %} >
+                                                <label class="form-check-label" for="emd_form_online">Online</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="emd_form[]" id="emd_form_online_portal" value="Online Portal" {% if 'Online Portal' in emd_form_list %}checked{% endif %} >
+                                                <label class="form-check-label" for="emd_form_online_portal">Online Portal</label>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">EMD Amount</th>
+                                    <td><input type="text" class="form-control" name="emd_amount" value="{{ details[0][4] }}" ></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">In Favour Of</th>
+                                    <td><input type="text" class="form-control" name="in_favour_of" value="{{ details[0][5] }}" ></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Remarks</th>
+                                    <td><input type="text" class="form-control" name="remarks" value="{{ details[0][6] }}" ></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">EMD Expiry Date</th>
+                                    <td><input type="date" class="form-control" name="emd_exp_dt" value="{{ details[0][7] }}" ></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">EMD Status</th>
+                                    <td type="text" class="form-control" name="emd_status"> {{ details[0][9] }} </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">EMD Internal Remarks</th>
+                                    <td type="text" class="form-control" name="emd_int_rem"> {{ details[0][10] }} </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Upload EMD Documents</th>
+                                    <td><input type="file" class="form-control" name="document" ></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- <div class="text-center mb-3">
+                            <button type="button" id="edit-button" class="btn btn-primary">Edit</button>
+                        </div> -->
+
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#bgDetailsSection">View/Add/Edit BG Details</button>
+                        <div id="bgDetailsSection" class="collapse collapse-section">
+                            <h4>BG Details</h4>
+                            <div class="form-group">
+                                <label for="bank">Bank:</label>
+                                <p>{{ bg_details['bank'] }}</p>
+                                <input type="text" class="form-control" id="bank" name="bg_details[bank]" value="{{ bg_details['bank'] }}" >
+                            </div>
+                            <div class="form-group">
+                                <label for="bg_ref_no">BG Reference Number:</label>
+                                <input type="text" class="form-control" id="bg_ref_no" name="bg_details[bg_ref_no]" value="{{ bg_details['bg_ref_no'] }}" >
+                            </div>
+                            <div class="form-group">
+                                <label for="bg_issue_date">BG Issue Date:</label>
+                                <input type="date" class="form-control" id="bg_issue_date" name="bg_details[bg_issue_date]" value="{{ bg_details['bg_issue_date'] }}" >
+                            </div>
+                            <div class="form-group">
+                                <label for="bg_expiry_date">BG Expiry Date:</label>
+                                <input type="date" class="form-control" id="bg_expiry_date" name="bg_details[bg_expiry_date]" value="{{ bg_details['bg_expiry_date'] }}" >
+                            </div>
+                            <div class="form-group">
+                                <label for="bg_amount">BG Amount:</label>
+                                <input type="number" class="form-control" id="bg_amount" name="bg_details[bg_amount]" value="{{ bg_details['bg_amount'] }}" >
+                            </div>
+                            <div class="form-group">
+                                <label for="bg_outstanding">BG Outstanding:</label>
+                                <input type="number" class="form-control" id="bg_outstanding" name="bg_details[bg_outstanding]" value="{{ bg_details['bg_outstanding'] }}" >
+                            </div>
+                            <div class="form-group">
+                                <label for="beneficiary_name">Beneficiary Name:</label>
+                                <input type="text" class="form-control" id="beneficiary_name" name="bg_details[beneficiary_name]" value="{{ bg_details['beneficiary_name'] }}" >
+                            </div>
+                            <div class="form-group">
+                                <label for="bg_status">BG Status:</label>
+                                <select class="form-control" id="bg_status" name="bg_details[bg_status]" >
+                                    <option value="under_approvals" {% if bg_details['bg_status'] == 'under_approvals' %}selected{% endif %}>Under Approvals</option>
+                                    <option value="fdr_created" {% if bg_details['bg_status'] == 'fdr_created' %}selected{% endif %}>FDR Created</option>
+                                    <option value="applied" {% if bg_details['bg_status'] == 'applied' %}selected{% endif %}>Applied</option>
+                                    <option value="issued" {% if bg_details['bg_status'] == 'issued' %}selected{% endif %}>Issued</option>
+                                    <option value="cancellation_applied" {% if bg_details['bg_status'] == 'cancellation_applied' %}selected{% endif %}>Cancellation Applied</option>
+                                    <option value="cancelled" {% if bg_details['bg_status'] == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fdr_no">FDR Number:</label>
+                                <input type="text" class="form-control" id="fdr_no" name="bg_details[fdr_no]" value="{{ bg_details['fdr_no'] }}" >
+                            </div>
+                            <div class="form-group">
+                                <label for="date_of_closure">Date of Closure:</label>
+                                <input type="date" class="form-control" id="date_of_closure" name="bg_details[date_of_closure]" value="{{ bg_details['date_of_closure'] }}" >
+                            </div>
+                            <div class="form-group">
+                                <label for="required_expiry_date">Required Expiry Date:</label>
+                                <input type="date" class="form-control" id="required_expiry_date" name="bg_details[required_expiry_date]" value="{{ bg_details['required_expiry_date'] }}" >
+                            </div>
+                            <div class="form-group">
+                                <label for="difference">Difference:</label>
+                                <input type="text" class="form-control" id="difference" name="bg_details[difference]" value="{{ bg_details['difference'] }}" >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-center text-muted">No details found for this Tender.</p>
+            {% endif %}
+
+            <div class="btn-container">
+                {% if session['team'] == 'Accounts' %}
+                    <button type="submit" name="action" value="approve" class="btn btn-success">Submit</button>
+                {% else %}
+                    <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+                    <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                {% endif %}
+            </div>
+        </form>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('emd_list') }}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // document.getElementById('edit-button').addEventListener('click', function () {
+        //     const formInputs = document.querySelectorAll('input, select');
+        //     formInputs.forEach(input => {
+        //         if (input.hasAttribute('') || input.) {
+        //             input.removeAttribute('');
+        //             input. = false;
+        //         } else {
+        //             input.setAttribute('', '');
+        //             input. = false;
+        //         }
+        //     });
+        // });
+        document.getElementById('details-form').addEventListener('submit', function (e) {
+    // Assuming session['profile'] is passed as a global JavaScript variable
+    const userProfile = "{{ session['profile'] }}"; // Dynamically set in template
+    if (userProfile === 'accounts') {
+        const emdFormElements = document.querySelectorAll('input[name="emd_form[]"]:checked');
+        const selectedForms = Array.from(emdFormElements).map(el => el.value);
+
+        // Retrieve field values
+        const bank = document.getElementById('bank').value.trim();
+        const bgRefNo = document.getElementById('bg_ref_no').value.trim();
+        const bgIssueDate = document.getElementById('bg_issue_date').value.trim();
+        const bgExpiryDate = document.getElementById('bg_expiry_date').value.trim();
+        const bgAmount = document.getElementById('bg_amount').value.trim();
+        const beneficiaryName = document.getElementById('beneficiary_name').value.trim();
+        const fdrNo = document.getElementById('fdr_no').value.trim();
+
+        let errors = [];
+
+        // Validation rules
+        if (selectedForms.includes('PBG')) {
+            if (!bank || !bgRefNo || !bgIssueDate || !bgExpiryDate || !bgAmount || !beneficiaryName) {
+                errors.push('For PBG, Bank, BG Reference Number, BG Issue Date, BG Expiry Date, BG Amount, and Beneficiary Name are mandatory.');
+            }
+        }
+        if (selectedForms.includes('FD')) {
+            if (!bank || !bgRefNo || !bgIssueDate || !bgExpiryDate || !bgAmount || !beneficiaryName || !fdrNo) {
+                errors.push('For FD, Bank, BG Reference Number, BG Issue Date, BG Expiry Date, BG Amount, Beneficiary Name, and FDR Number are mandatory.');
+            }
+        }
+        if (selectedForms.includes('DD')) {
+            if (!bank || !bgRefNo || !bgAmount || !beneficiaryName) {
+                errors.push('For DD, Bank, BG Reference Number, BG Amount, and Beneficiary Name are mandatory.');
+            }
+        }
+        if (selectedForms.includes('Bankers Cheque')) {
+            if (!bank || !bgAmount || !beneficiaryName) {
+                errors.push('For Bankers Cheque, Bank, BG Amount, and Beneficiary Name are mandatory.');
+            }
+        }
+        if (selectedForms.includes('Online')) {
+            if (!bank || !bgRefNo || !bgAmount || !beneficiaryName) {
+                errors.push('For Online, Bank, BG Reference Number, BG Amount, and Beneficiary Name are mandatory.');
+            }
+        }
+
+        if (errors.length > 0) {
+            e.preventDefault();
+            alert(errors.join('\n'));
+        }
+    }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Update Tender</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Update Tender: {{ tender_id }}</h2>
+    <a href="{{ url_for('tenders') }}" class="btn btn-primary">Back to Tenders Tenders</a>
+    <a href="{{ url_for('for_update') }}" class="btn btn-primary">Back to For Update Tenders</a>
+    <form method="POST" action="{{ url_for('update_tender', tender_id=tender_id) }}">
+      <div class="form-group">
+        <label for="emd">EMD:</label>
+        <input type="text" class="form-control" id="emd" name="emd" value="{{ emd }}">
+      </div>
+      <div class="form-group">
+        <label for="location">Location:</label>
+        <input type="text" class="form-control" id="location" name="location" value="{{ location }}">
+      </div>
+      <div class="form-group">
+        <label for="pre_bid_meeting">Pre-Bid Meeting:</label>
+        <input type="datetime-local" class="form-control" id="pre_bid_meeting" name="pre_bid_meeting" value="{{ pre_bid_meeting }}">
+      </div>
+      <div class="form-group">
+        <label for="estimated_value">Estimated Value:</label>
+        <input type="text" class="form-control" id="estimated_value" name="estimated_value" value="{{ estimated_value }}">
+      </div>
+      <div class="form-group">
+          <label for="remarks">Remarks:</label>
+          <input type="text" class="form-control" id="remarks" name="remarks" value="{{ remarks }}">
+      </div>
+      <div>
+        <label for="status">Status:</label>
+        <select class="form-control" id="status" name="status" onchange="toggleRejectionDropdown()" required>
+          <option value="none">None</option>
+            <option value="pre_approved">Pre Approved</option>
+            <option value="rejected">Rejected</option>
+        </select><br>
+      </div>
+      <div class="form-group" style="display: none;" id="rejectionReasonDiv">
+        <label>Rejection Reasons:</label><br>
+        <a href="{{ url_for('insert_rej_rsn') }}" target='_blank'>Add Rejection Reason (If not listed below)</a>
+        {% for reason in rejrsn %}
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="{{ reason }}" name="rejc_rsn[]" value="{{ reason }}">
+            <label class="form-check-label" for="{{ reason }}">{{ reason }}</label>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="form-group" style="display: none;" id="ifOtheCheck">
+        <label for="if_other">If Other:</label>
+        <input type="text" class="form-control" id="if_other" name="if_other">
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
+
+      <a href="{{ url_for('view_files', folder_path=folder_loc, t_id=tender_id) }}" class="btn btn-primary" target="_blank">View Files</a>
+    </form>
+  </div>
+
+  <script>
+    window.onload = function() {
+      toggleRejectionDropdown();  // Set initial state on page load
+    };
+
+    function toggleRejectionDropdown() {
+      var statusDropdown = document.getElementById("status");
+      var rejectionSection = document.getElementById("rejectionReasonDiv");
+      var ifOtherField = document.getElementById("if_other");
+      var ifOtherCheck = document.getElementById("ifOtheCheck");
+  
+      if (statusDropdown.value === "rejected") {
+        rejectionSection.style.display = "block";
+        enableRejectionCheckboxes(true);
+      } else {
+        rejectionSection.style.display = "none";
+        enableRejectionCheckboxes(false);
+      }
+  
+      checkOtherCheckbox(ifOtherCheck);
+    }
+  
+    function enableRejectionCheckboxes(enable) {
+      var checkboxes = document.querySelectorAll("#rejectionReasonDiv input[type='checkbox']");
+      for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].disabled = !enable;
+      }
+    }
+  
+    function checkOtherCheckbox(ifOtherCheck) {
+      var otherCheckbox = document.getElementById("Other");
+      var ifOtherField = document.getElementById("if_other");
+  
+      if (otherCheckbox && otherCheckbox.checked) {
+        ifOtherCheck.style.display = "block";
+        ifOtherField.style.display = "block";
+        ifOtherField.required = true;
+      } else {
+        ifOtherCheck.style.display = "none";
+        ifOtherField.style.display = "none";
+        ifOtherField.required = false;
+      }
+    }
+  
+    // Event listener for status change
+    document.getElementById("status").addEventListener("change", function() {
+      var ifOtherCheck = document.getElementById("ifOtheCheck");
+      toggleRejectionDropdown(ifOtherCheck);
+    });
+  
+    // Event listener for Other checkbox change
+    document.getElementById("Other").addEventListener("change", function() {
+      var ifOtherCheck = document.getElementById("ifOtheCheck");
+      checkOtherCheckbox(ifOtherCheck);
+    });
+  
+    // Validate the form before submission
+    document.getElementById("submitBtn").addEventListener("click", function(event) {
+      var statusDropdown = document.getElementById("status");
+      var otherCheckbox = document.getElementById("Other");
+      var ifOtherField = document.getElementById("if_other");
+      var rejectionCheckboxes = document.querySelectorAll("#rejectionReasonDiv input[type='checkbox']:checked");
+
+      if (statusDropdown.value === "rejected" && rejectionCheckboxes.length === 0) {
+        alert("Please select at least one rejection reason.");
+        event.preventDefault();  // Prevent form submission
+      }
+      if (statusDropdown.value === "rejected" && otherCheckbox.checked && ifOtherField.value.trim() === "") {
+        alert("Please provide a value for 'If Other.'");
+        event.preventDefault();  // Prevent form submission
+      }
+    });
+  </script>
+  
+</body>
+</html>

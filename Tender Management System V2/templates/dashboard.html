@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tender Dashboard</title>
+    <!-- Load Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Tender Dashboard</h1>
+    <div>
+        <label for="timeInterval">Select Time Interval:</label>
+        <select id="timeInterval">
+            <option value="monthly">Monthly</option>
+            <option value="weekly">Weekly</option>
+            <option value="daily">Daily</option>
+        </select>
+
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate">
+
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate">
+
+        <button onclick="updateChart()">Apply Filters</button>
+    </div>
+
+    <div id="tenderBarChart"></div>
+
+    <script>
+        var barChartDiv = 'tenderBarChart';
+
+        function updateChart() {
+            var timeInterval = document.getElementById("timeInterval").value;
+            var startDate = document.getElementById("startDate").value;
+            var endDate = document.getElementById("endDate").value;
+
+            // Send the filter parameters to the server using the fetch API
+            fetch('/dashboard', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ timeInterval: timeInterval, startDate: startDate, endDate: endDate })
+            })
+            .then(response => response.json())
+            .then(updatedChartData => {
+                // Update the chart with the new data
+                Plotly.react(barChartDiv, updatedChartData.data, updatedChartData.layout);
+            })
+            .catch(error => console.error('Error: ', error));
+        }
+
+        // Initial load
+        // var initialChartData = {{ bar_chart_json|safe }};
+        Plotly.newPlot(barChartDiv, initialChartData.data, initialChartData.layout);
+    </script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!-- update_tender_status_remarks.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Tender Status and Remarks</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }      
+        .container {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        .tender-history-box {
+            border: 5px solid #c7b4b4da;
+            padding: 10px;
+            margin-top: 50px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">Update Tender Status and Remarks</h1>
+        <p>Tender id: {{ tender_id }}</p>
+        <p>Location: {{ loc }}</p>
+        <form method="POST" enctype="multipart/form-data" onsubmit="disableButton()">
+            <div class="form-group">
+                <label for="verification">Verification:</label>
+                <select class="form-control" id="verification" name="verification">
+                    <option value="none" {% if verification == 'none' %}selected{% endif %}>None</option>
+                    <option value="approved" {% if verification == 'approved' %}selected{% endif %}>Approved</option>
+                    <option value="rejected" {% if verification == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+                <label for="to_whom">To Whom:</label>
+                <select class="form-control" id="to_whom" name="to_whom">
+                  <option value="none">Select</option>
+                    {% for user in users %}
+                        <option value="{{ user }}" {% if user == usr_data %}selected{% endif %}>{{ user }}</option>
+                    {% endfor %}
+                </select>
+                <label for="status">Status:</label>
+                <select class="form-control" id="status" name="status">
+                    <option value="Open" {% if current_status == 'Open' %}selected{% endif %}>Open</option>
+                    <option value="Under Consideration" {% if current_status == 'Under Consideration' %}selected{% endif %}>Under Consideration</option>
+                    <option value="WIP" {% if current_status == 'WIP' %}selected{% endif %}>WIP</option>
+                    <option value="WIP-For EMD" {% if current_status == 'WIP-For EMD' %}selected{% endif %}>WIP-For EMD</option>
+                    <option value="WIP-EMD Done" {% if current_status == 'WIP-EMD Done' %}selected{% endif %}>WIP-EMD Done</option>
+                    <option value="EMD Cancelled" {% if current_status == 'EMD Cancelled' %}selected{% endif %}>EMD Cancelled</option>
+                    <option value="Submitted" {% if current_status == 'Submitted' %}selected{% endif %}>Submitted</option>
+                    <option value="Not Submitted" {% if current_status == 'Not Submitted' %}selected{% endif %}>Not Submitted</option>
+                    <option value="New-Corrigendum" {% if current_status == 'New-Corrigendum' %}selected{% endif %}>New-Corrigendum</option>
+                    <option value="Submitted-L1" {% if current_status == 'Submitted-L1' %}selected{% endif %}>Submitted-L1</option>
+                    <option value="Close-WIN" {% if current_status == 'Close-WIN' %}selected{% endif %}>Close-WIN</option>
+                    <option value="Close-LOSE" {% if current_status == 'Close-LOSE' %}selected{% endif %}>Close-LOSE</option>
+                    <option value="Close-Cancel" {% if current_status == 'Close-Cancel' %}selected{% endif %}>Close-Cancel</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="display: none;" id="rejectionReasonDiv">
+                <label>Rejection Reasons:</label><br>
+                <a href="{{ url_for('insert_rej_rsn') }}" target='_blank'>Add Rejection Reason (If not listed below)</a>
+                {% for reason in rejrsn %}
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="{{ reason }}" name="rejc_rsn[]" value="{{ reason }}">
+                    <label class="form-check-label" for="{{ reason }}">{{ reason }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="form-group" style="display: none;" id="ifOtheCheck">
+                <label for="if_other">If Other:</label>
+                <input type="text" class="form-control" id="if_other" name="if_other">
+            </div>
+
+            <div class="form-group" id="submitted-amount-group">
+                <label for="s_amt">Submitted Amount:</label>
+                <input type="number" step="0.01" class="form-control" id="s_amt" name="s_amt" value="{{ s_amt }}">
+            </div>
+            <div class="form-group hide-field">
+                <label for="acc_submitted_date">Acctual Submitted Date:</label>
+                <input type="datetime-local" id="acc_submitted_date" name="acc_submitted_date" >
+            </div>
+            <div class="form-group lose-reason hide-field">
+                <label for="lose_reason">Reason:</label>
+                <select class="form-control" id="lose_reason" name="lose_reason" value="{{ l_state }}">
+                    <option value="Bider Disqualify">Bider Disqualify</option>
+                    <option value="Product Disqualify">Product Disqualify</option>
+                    <option value="Financial Disqualify">Financial Disqualify</option>
+                </select>
+            </div>
+            <div class="form-group l1-amount hide-field">
+                <label for="l1_amt">L1 Amount:</label>
+                <input type="number" step="0.01" class="form-control" id="l1_amt" name="l1_amt" value="{{ l1_amt }}">
+            </div>
+            <div class="form-group our-amount hide-field">
+                <label for="our_amt">Our Amount:</label>
+                <input type="number" step="0.01" class="form-control" id="our_amt" name="our_amt" value="{{ o_amt }}">
+            </div>
+            <div class="form-group lose-remarks hide-field">
+                <label for="lose_remarks">Lose Remarks:</label>
+                <textarea class="form-control" id="lose_remarks" name="lose_remarks" rows="10" value="{{ l_rem }}">{{ l_rem }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="remarks">Remarks:</label>
+                <textarea class="form-control" id="remarks" name="remarks" rows="10">{{ current_remarks }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="submission_date">Submission Date:</label>
+                <input type="datetime-local" id="submission_date" name="submission_date" >
+            </div>
+            <label for="reminder_for">Reminder For:</label>
+            <select class="form-control" id="reminder_for" name="reminder_for">
+                <option value="none">Select</option>
+                    {% for user in users %}
+                        <option value="{{ user }}" {% if user == usr_data %}selected{% endif %}>{{ user }}</option>
+                    {% endfor %}
+            </select>
+            <div class="form-group">
+                <label for="reminder_date">Reminder Date:</label>
+                <input type="datetime-local" id="reminder_date" name="reminder_date" >
+            </div>
+            <div class="form-group">
+                <label for="document">Upload Documents:</label>
+                <input type="file" id="document" name="document" multiple>
+            </div>
+            <button type="submit" id="submit-btn" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+    <div class="tender-history-box">
+        <h2>Tender History:</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Serial No</th>
+                    <th>Status</th>
+                    <th hidden="Submitted Amount"></th>
+                    <th>Assign To</th>
+                    <th>Remarks</th>
+                    <th>Change Timestamp</th>
+                    <th>Updated By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, row in tender_history.iterrows() %}
+                <tr>
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ row['done'] }}</td>
+                    <td hidden={{ row['submitted_value'] }}></td>
+                    <td>{{ row['to_whom'] }}</td>
+                    <td>{{ row['remarks'] }}</td>
+                    <td>{{ row['change_timestamp'] }}</td>
+                    <td>{{ row['user_id'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        window.onload = function() {
+            toggleRejectionDropdown();
+            updateSubmittedAmountRequired();
+            updateCloseLoseRequired();
+          };
+        // Show/hide the "Submitted Amount" field based on the selected status
+        var statusSelect = document.getElementById("status");
+        var submittedAmountGroup = document.getElementById("submitted-amount-group");
+        var accSubmittedDate = document.getElementById("acc_submitted_date");
+        var loseReasonField = document.querySelector(".lose-reason");
+        var loseRemarksField = document.querySelector(".lose-remarks");
+        var l1AmountField = document.querySelector(".l1-amount");
+        var ourAmountField = document.querySelector(".our-amount");
+        var submittedAmountInput = document.getElementById("s_amt"); // Get the submitted amount input element
+
+        var verDropdown = document.getElementById("verification");
+        var rejectionSection = document.getElementById("rejectionReasonDiv");
+        var ifOtherField = document.getElementById("if_other");
+        var ifOtherCheck = document.getElementById("ifOtheCheck");
+
+        function updateSubmittedAmountRequired() {
+            if (statusSelect.value === "Submitted") {
+                submittedAmountGroup.style.display = "block";
+                accSubmittedDate.style.display = "block";
+                submittedAmountInput.setAttribute("required", "required"); // Set the "required" attribute
+                accSubmittedDate.setAttribute("required", "required"); // Set the "required" attribute
+            } else {
+                submittedAmountGroup.style.display = "none";
+                accSubmittedDate.style.display = "none";
+                submittedAmountInput.removeAttribute("required"); // Remove the "required" attribute
+                accSubmittedDate.removeAttribute("required"); // Remove the "required" attribute
+            }
+        }
+
+        function updateCloseLoseRequired() {
+            var closeLoseFields = ["lose_reason", "l1_amt", "our_amt", "lose_remarks"];
+            var isCloseLose = statusSelect.value === "Close-LOSE";
+
+            closeLoseFields.forEach(function (field) {
+                var element = document.getElementById(field);
+                if (isCloseLose) {
+                    element.setAttribute("required", "required");
+                } else {
+                    element.removeAttribute("required");
+                }
+        });
+
+        // Show/hide "Lose Reason," "Lose Remarks," "L1 Amount," and "Our Amount" fields based on the selected status
+        loseReasonField.style.display = isCloseLose ? "block" : "none";
+        l1AmountField.style.display = isCloseLose ? "block" : "none";
+        ourAmountField.style.display = isCloseLose ? "block" : "none";
+        loseRemarksField.style.display = isCloseLose ? "block" : "none";
+        }
+
+        function toggleRejectionDropdown() {    
+            if (statusSelect.value === "Not Submitted") {
+              rejectionSection.style.display = "block";
+              rejectionSection.required = true;
+              enableRejectionCheckboxes(true);
+            } else if (verDropdown.value === 'rejected') {
+                rejectionSection.style.display = "block";
+                rejectionSection.required = true;
+                enableRejectionCheckboxes(true);
+            } else {
+              rejectionSection.style.display = "none";
+              enableRejectionCheckboxes(false);
+            }
+        
+            checkOtherCheckbox(ifOtherCheck);
+          }
+        
+          function enableRejectionCheckboxes(enable) {
+            var checkboxes = document.querySelectorAll("#rejectionReasonDiv input[type='checkbox']");
+            for (var i = 0; i < checkboxes.length; i++) {
+              checkboxes[i].disabled = !enable;
+            }
+          }
+        
+          function checkOtherCheckbox(ifOtherCheck) {
+            var otherCheckbox = document.getElementById("Other");
+            var ifOtherField = document.getElementById("if_other");
+        
+            if (otherCheckbox && otherCheckbox.checked) {
+              ifOtherCheck.style.display = "block";
+              ifOtherField.style.display = "block";
+              ifOtherField.required = true;
+            } else {
+              ifOtherCheck.style.display = "none";
+              ifOtherField.style.display = "none";
+              ifOtherField.required = false;
+            }
+          }
+
+    statusSelect.addEventListener("change", function () {
+        updateSubmittedAmountRequired();
+        updateCloseLoseRequired();
+        toggleRejectionDropdown();
+        
+    });
+        function disableButton() {
+                var submitBtn = document.getElementById("submit-btn");
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Updating...";
+            }
+    
+      // Event listener for status change
+      document.getElementById("status").addEventListener("change", function() {
+        var ifOtherCheck = document.getElementById("ifOtheCheck");
+        toggleRejectionDropdown(ifOtherCheck);
+      });
+
+      document.getElementById("verification").addEventListener("change", function() {
+        var ifOtherCheck = document.getElementById("ifOtheCheck");
+        toggleRejectionDropdown(ifOtherCheck);
+      });
+    
+      // Event listener for Other checkbox change
+      document.getElementById("Other").addEventListener("change", function() {
+        var ifOtherCheck = document.getElementById("ifOtheCheck");
+        checkOtherCheckbox(ifOtherCheck);
+      });
+    
+      // Validate the form before submission
+    // Validate the form before submission
+    document.getElementById("submit-btn").addEventListener("click", function(event) {
+        var otherCheckbox = document.getElementById("Other");
+        var ifOtherField = document.getElementById("if_other");
+        var rejectionCheckboxes = document.querySelectorAll("#rejectionReasonDiv input[type='checkbox']:checked");
+
+        if ((statusSelect.value === "Not Submitted" || verDropdown.value === 'rejected') && rejectionCheckboxes.length === 0) {
+            alert("Please select at least one rejection reason.");
+            event.preventDefault();  // Prevent form submission
+        }
+
+        if ((statusSelect.value === "Not Submitted" || verDropdown.value === 'rejected') && otherCheckbox.checked && ifOtherField.value.trim() === "") {
+            alert("Please provide a value for 'If Other.'");
+            event.preventDefault();  // Prevent form submission
+        }
+    });
+
+    // Trigger the change event initially to handle the default selected status
+    updateSubmittedAmountRequired();
+    updateCloseLoseRequired();
+    toggleRejectionDropdown();
+    </script>
+</body>
+</html>

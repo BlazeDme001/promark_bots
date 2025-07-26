@@ -1,0 +1,91 @@
+<!-- update_tender_status_remarks.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Tender EMD/PBG Details</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .container {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        .tender-history-box {
+            border: 5px solid #c7b4b4da;
+            padding: 10px;
+            margin-top: 50px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">Update Tender EMD/PBG Details</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="loc">Tender Location:</label>
+                <p class="form-control" id="loc" name="loc" rows="1">{{ loc }}</p>
+            </div>
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select class="form-control" id="status" name="status">
+                    <option value="WIP-FOR EMD" {% if current_status == 'WIP-FOR EMD' %}selected{% endif %}>WIP-FOR EMD</option>
+                    <option value="WIP-EMD Done" {% if current_status == 'WIP-EMD Done' %}selected{% endif %}>WIP-EMD Done</option>
+                    <option value="EMD Cancelled" {% if current_status == 'EMD Cancelled' %}selected{% endif %}>EMD Cancelled</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="emd_form">EMD Form:</label>
+                <select class="form-control" id="emd_form" name="emd_form">
+                    <option value="PBG" {% if emd_form == 'PBG' %}selected{% endif %}>PBG</option>
+                    <option value="FD" {% if emd_form == 'FD' %}selected{% endif %}>FD</option>
+                    <option value="DD" {% if emd_form == 'DD' %}selected{% endif %}>DD</option>
+                    <option value="Bankers Cheque" {% if emd_form == 'Bankers Cheque' %}selected{% endif %}>Bankers Cheque</option>
+                    <option value="Online" {% if emd_form == 'Online' %}selected{% endif %}>Online</option>
+                    <option value="Online Portal" {% if emd_form == 'Online Portal' %}selected{% endif %}>Online Portal</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="remarks">Remarks:</label>
+                <textarea class="form-control" id="remarks" name="remarks" rows="3">{{ remarks }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="document">Upload EMD Documents:</label>
+                <input type="file" id="document" name="document" multiple>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+    <div class="tender-history-box">
+        <h2>Tender History:</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Serial No</th>
+                    <th>Status</th>
+                    <th>Remarks</th>
+                    <th>Change Timestamp</th>
+                    <th>Updated By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, row in tender_history.iterrows() %}
+                <tr>
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ row['done'] }}</td>
+                    <td>{{ row['remarks'] }}</td>
+                    <td>{{ row['change_timestamp'] }}</td>
+                    <td>{{ row['user_id'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

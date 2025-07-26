@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>For Update Tenders</title>
+    <style>
+        body {
+            background-color: #daf3dd;
+        }
+    
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+    
+        table {
+            background-color: #becada;
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    
+        th {
+            background-color: #cce988;
+            color: #333;
+            font-size: 20px;
+            padding: 10px;
+        }
+    
+        td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e5eca5;
+        }
+    
+        tr:hover {
+            background-color: #93a1ec;
+        }
+    
+        p {
+            color: #666;
+        }
+        
+        a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3533b7;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        a:hover {
+            background-color: #23527c;
+        }
+        
+        .filter-form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .filter-input {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+        
+        .filter-submit {
+            padding: 5px 10px;
+            background-color: #337ab7;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>For Update Tenders Table</h1>
+    <a href="{{ url_for('tenders') }}" class="btn btn-secondary">Go to Main Page</a>
+    <form class="filter-form" action="{{ url_for('for_update') }}" method="get">
+        <label for="filter_tender_id">Tender ID:</label>
+        <input class="filter-input" type="text" id="filter_tender_id" name="filter_tender_id" placeholder="Enter tender ID">
+        
+        <label for="filter_customer">Customer:</label>
+        <input class="filter-input" type="text" id="filter_customer" name="filter_customer" placeholder="Enter customer">
+
+        <label for="filter_name_of_work">Name of Work:</label>
+        <input class="filter-input" type="text" id="filter_name_of_work" name="filter_name_of_work" placeholder="Enter name of work">
+        
+        <label for="filter_start_date">Start Date:</label>
+        <input class="filter-input" type="date" id="filter_start_date" name="filter_start_date" placeholder="Enter start date">
+        
+        <label for="filter_end_date">End Date:</label>
+        <input class="filter-input" type="date" id="filter_end_date" name="filter_end_date" placeholder="Enter end date">
+
+        <label for="filter_days_old">Days Old:</label>
+        <input class="filter-input" type="text" id="filter_days_old" name="filter_days_old" placeholder="Enter Days">
+
+        <button class="filter-submit" type="submit">Filter</button>
+    </form>
+
+    {% if tenders %}
+        <form id="status-form" action="{{ url_for('update_tender_status_1') }}" method="POST"></form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sl No.</th>
+                        <th>Tender ID</th>
+                        <th>Customer</th>
+                        <th>Name of Work</th>
+                        <th>Submission Date</th>
+                        {% if session['profile'] | default('') in ('SUPER ADMIN') %}
+                            <th>Inserted Time</th>
+                        {% endif %}
+                        <th>Update</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tender in tenders %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ tender[0] }}</td>
+                            <td>{{ tender[1] }}</td>
+                            <td>{{ tender[2] }}</td>
+                            <td>{{ tender[3] }}</td>
+                            {% if session['profile'] | default('') in ('SUPER ADMIN') %}
+                                <td>{{ tender[7] }}</td>
+                            {% endif %}
+                            <td class="action-btn">
+                                <a href="{{ url_for('update_tender', tender_id=tender[0]) }}" class="btn btn-primary" target="_blank">Update</a>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="selected_tenders" value="{{ tender[0] }}">
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div>
+                <select id="status-dropdown" name="status">
+                    <option value="" selected disabled>Select Status</option>
+                    <option value="pre_approved">Pre Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="direct_rejected">Direct Rejected</option>
+                </select>
+                <button id="update-status-btn" type="submit">Update Status</button>
+            </div>
+    {% else %}
+        <p>No tenders found.</p>
+    {% endif %}
+
+    <script>
+        document.getElementById('update-status-btn').addEventListener('click', function () {
+            var selectedTenders = document.getElementsByName('selected_tenders');
+            var statusDropdown = document.getElementById('status-dropdown');
+            var selectedStatus = statusDropdown.value;
+            if (selectedStatus) {
+                var selectedTendersArray = Array.from(selectedTenders).filter(function (checkbox) {
+                    return checkbox.checked;
+                }).map(function (checkbox) {
+                    return checkbox.value;
+                });
+                if (selectedTendersArray.length > 0) {
+                    var formData = new FormData();
+                    formData.append('selected_tenders', selectedTendersArray.join(','));
+                    formData.append('status', selectedStatus);
+
+                    // Perform AJAX request to update the status for selected tenders
+                    fetch('/update_status', {
+                        method: 'POST',
+                        body: formData
+                    }).then(function (response) {
+                        // Handle the response
+                        console.log(response);
+                        // Reload the page to reflect the updated status
+                        location.reload();
+                    }).catch(function (error) {
+                        // Handle the error
+                        console.error(error);
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+</body>
+</html>

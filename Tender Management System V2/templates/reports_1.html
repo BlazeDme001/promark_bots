@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container {
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        body {
+            background-color: #f8f9fa;
+        }
+
+        h1, h2 {
+            color: #007bff;
+        }
+
+        th, .form-control {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 90%;
+        }
+
+        table, th, td {
+            border: 1px solid #dee2e6;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #cce5ff;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1 class="mt-4 mb-4">Reports (Last 7 days)</h1>
+        <div class="container">
+            <h2 style="color: #28a745;">Inserted by Bot</h2>
+            <input type="text" id="filterBot" class="form-control mb-2" placeholder="Filter by Tender ID">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Serial Number</th>
+                        <th>Tender ID</th>
+                        <th>Inserted Time</th>
+                        <th>Inserted User ID</th>
+                    </tr>
+                </thead>
+                <tbody id="filterBotTable">
+                    {% for index, row in df_bot.iterrows() %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ row['tender_id'] }}</td>
+                            <td>{{ row['inserted_time'] }}</td>
+                            <td>{{ row['inserted_user_id'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="container">
+            <h2 style="color: #dc3545;">Rejected</h2>
+            <input type="text" id="filterRejected" class="form-control mb-2" placeholder="Filter by Tender ID, Name of Work, etc.">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Serial Number</th>
+                        <th>Tender ID</th>
+                        <th>Name of Work</th>
+                        <th>Customer</th>
+                        <th>Inserted Time</th>
+                        <th>Inserted User ID</th>
+                        <th>Verification 1</th>
+                        <th>Done</th>
+                    </tr>
+                </thead>
+                <tbody id="filterRejectedTable">
+                    {% for index, row in df_rejected.iterrows() %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ row['tender_id'] }}</td>
+                            <td>{{ row['name_of_work'] }}</td>
+                            <td>{{ row['customer'] }}</td>
+                            <td>{{ row['inserted_time'] }}</td>
+                            <td>{{ row['inserted_user_id'] }}</td>
+                            <td>{{ row['verification_1'] }}</td>
+                            <td>{{ row['done'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="container">
+            <h2 style="color: #ffc107;">Submitted</h2>
+            <input type="text" id="filterSubmitted" class="form-control mb-2" placeholder="Filter by Tender ID, Name of Work, etc.">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Serial Number</th>
+                        <th>Tender ID</th>
+                        <th>Name of Work</th>
+                        <th>Customer</th>
+                        <th>Inserted Time</th>
+                        <th>Inserted User ID</th>
+                        <th>Verification 1</th>
+                        <th>Done</th>
+                    </tr>
+                </thead>
+                <tbody id="filterSubmittedTable">
+                    {% for index, row in df_submitted.iterrows() %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ row['tender_id'] }}</td>
+                            <td>{{ row['name_of_work'] }}</td>
+                            <td>{{ row['customer'] }}</td>
+                            <td>{{ row['inserted_time'] }}</td>
+                            <td>{{ row['inserted_user_id'] }}</td>
+                            <td>{{ row['verification_1'] }}</td>
+                            <td>{{ row['done'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Filter for Inserted by Bot
+        $("#filterBot").on("input", function() {
+            var value = $(this).val().toLowerCase();
+            $("#filterBotTable tbody tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+
+        // Filter for Rejected
+        $("#filterRejected").on("input", function() {
+            var value = $(this).val().toLowerCase();
+            $("#filterRejectedTable tbody tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+
+        // Filter for Submitted
+        $("#filterSubmitted").on("input", function() {
+            var value = $(this).val().toLowerCase();
+            $("#filterSubmittedTable tbody tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    </script>
+</body>
+</html>

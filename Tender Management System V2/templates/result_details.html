@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result Details</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4 mb-4">Result Details (For Testing only)</h1>
+
+        {% if result_details %}
+            <div class="alert alert-success" role="alert">
+                Data received successfully!
+            </div>
+            <!-- <p>{{ result_details }}</p> -->
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Serial Number</th>
+                        <th>Tender ID</th>
+                        <th>EMD Status</th>
+                        <th>Participant On</th>
+                        <th>Offered Item</th>
+                        <th>Seller Name</th>
+                        <th>Total Price</th>
+                        <th>Rank</th>
+                        <th>MSE MII Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for details in result_details %}
+                        <tr>
+                            <td>{{ details['sl_no'] }}</td>
+                            <td>{{ details['tender_id'] }}</td>
+                            <td>{{ details['emd_status'] }}</td>
+                            <td>{{ details['paert_on'] }}</td>
+                            <td>{{ details['ofr_item'] }}</td>
+                            <td>{{ details['slr_name'] }}</td>
+                            <td>{{ details['total_price'] }}</td>
+                            <td>{{ details['rank'] }}</td>
+                            <td>{{ details['mse_mii_status'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="alert alert-danger" role="alert">
+                No data received.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Add Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!-- view_tender_details.html -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Tender Details</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
+            body {
+                padding: 20px;
+            }
+    </style>
+</head>
+<body>
+    <div>
+        <a href="{{ url_for('approve_tenders') }}" class="btn btn-secondary">Go to Approved Tenders</a>
+        <a href="{{ url_for('tenders') }}" class="btn btn-secondary">Go to Main Page</a>
+        <a href="{{ url_for('all_tenders') }}" class="btn btn-secondary">Go to All Tenders Page</a>
+    </div>
+    <div class="container">
+        <h1 class="mt-4">Tender Details</h1>
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <th>Tender ID:</th>
+                    <td>{{ tender[2] }}</td>
+                </tr>
+                <tr>
+                    <th>Customer:</th>
+                    <td>{{ tender[3] }}</td>
+                </tr>
+                <tr>
+                    <th>Location:</th>
+                    <td>{{ tender[4] }}</td>
+                </tr>
+                <tr>
+                    <th>Name of Work:</th>
+                    <td>{{ tender[5] }}</td>
+                </tr>
+                <tr>
+                    <th>Submission Date:</th>
+                    <td>{{ tender[6] }}</td>
+                </tr>
+                <tr>
+                    <th>Publish Date:</th>
+                    <td>{{ tender[23] }}</td>
+                </tr>
+                <tr>
+                    <th>EMD:</th>
+                    <td>{{ tender[7] }}</td>
+                </tr>
+                <tr>
+                    <th>EMD Required:</th>
+                    <td>{{ emd[0] }}</td>
+                </tr>
+                <tr>
+                    <th>EMD Form:</th>
+                    <td>{{ emd[1] }}</td>
+                </tr>
+                <tr>
+                    <th>In Favour Of:</th>
+                    <td>{{ emd[3] }}</td>
+                </tr>
+                <tr>
+                    <th>EMD Remarks:</th>
+                    <td>{{ emd[2] }}</td>
+                </tr>
+                <tr>
+                    <th>EMD Expiry date:</th>
+                    <td>{{ emd[4] }}</td>
+                </tr>
+                <tr>
+                    <th>Pre Bid Meeting:</th>
+                    <td>{{ tender[8] }}</td>
+                </tr>
+                <tr>
+                    <th>Estimate Value:</th>
+                    <td>{{ tender[9] }}</td>
+                </tr>
+                <tr>
+                    <th>Site Address (URL):</th>
+                    <td>
+                        <a href="{{ tender[10] }}" target="_blank">{{ tender[10] }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Status:</th>
+                    <td>{{ tender[13] }}</td>
+                </tr>
+                <tr>
+                    <th>Verification:</th>
+                    <td>{{ tender[14] }}</td>
+                </tr>
+                <tr>
+                    <th>Remarks:</th>
+                    <td>{{ tender[16] }}</td>
+                </tr>
+                <tr>
+                    <th>OEM:</th>
+                    <td>{{ tender[32] }}</td>
+                </tr>
+
+                {% if session['profile'] in ('SUPER ADMIN', 'ADMIN') %}
+                    <tr>
+                        <th>Inserted By:</th>
+                        <td>{{ tender[22] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Inserted Time:</th>
+                        <td>{{ tender[19] }}</td>
+                    </tr>
+                    <tr>
+                        <th>Catagory:</th>
+                        <td>{{ tender[35] }}</td>
+                    </tr>
+                    <tr>
+                        <th>CRM Account ID:</th>
+                        <td>{{ tender[36] }}</td>
+                    </tr>
+                    <tr>
+                        <th>CRM Account Name:</th>
+                        <td>{{ tender[37] }}</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('update_tender_status_remarks', tender_id=tender[2]) }}" class="btn btn-primary">Update Status and Remarks</a>
+        {% if user_id in ('admin') %}
+            <a href="{{ url_for('update_tender', tender_id=tender[2]) }}" class="btn btn-primary" target="_blank">Update Details</a>
+        {% endif %}
+        <a href="{{ url_for('view_files', folder_path=folder, t_id=tender[2]) }}" class="btn btn-primary" target="_blank">View Files</a>
+        <a href="{{ url_for('update_emd_details', tender_id=tender[2]) }}" class="btn btn-primary" target="_blank">EMD Details</a>
+        <a href="{{ url_for('update_oem_in_tenders', t_id=tender[2]) }}" class="btn btn-primary" target="_blank">OEM data</a>
+        {% if user_id in ('admin', raman, ashish) %}
+            <a href="{{ url_for('tat_list', id=tender[2]) }}" class="btn btn-primary" target="_blank">TAT</a>
+            <a href="{{ url_for('display_result_details', t_id=tender[2]) }}" class="btn btn-primary" target="_blank">Result Details</a>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

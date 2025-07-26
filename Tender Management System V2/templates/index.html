@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .update-btns {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .update-btns button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .update-btns button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+</head>
+<body>
+    <h1>List of Files</h1>
+    <ul>
+        {% for file in files %}
+        <li>
+            <a href="{{ url_for('open_file', filename=file, folder_path=folder_path) }}" target="_blank">{{ file }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <form action="{{ url_for('update_verification', folder_path=folder_path) }}" method="post">
+        <div class="update-btns">
+            <button type="submit" name="verification_status" value="approved">Approve All Files</button>
+            <button type="submit" name="verification_status" value="rejected">Reject All Files</button>
+        </div>
+    </form>
+</body>
+</html>

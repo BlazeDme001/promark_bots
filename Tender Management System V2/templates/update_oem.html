@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Fields</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        form, table {
+            margin: 5px auto;
+            padding: 10px;
+            width: 80%;
+            max-width: 2500px;
+            min-width: 1200px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        select, input[type="text"], textarea {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        select {
+            width: 50%;
+        }
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .update-box {
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+            min-width: 100px;
+            max-width: 2000px;
+        }
+        .len {
+            width: 150px;
+        }
+        .len1 {
+            width: 200px;
+        }
+        .len2 {
+            width: 50px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="update-box">
+        <h1>For Tender ID: {{ t_id }}</h1>
+        <a href="{{ url_for('insert_oem', t_id=t_id) }}" class="btn" >Add OEM</a>
+    <form id="insertForm" method="post" action="{{ url_for('update_oem_in_tenders', t_id=t_id) }}">
+        <h1>Insert New Records</h1>
+        <div>
+            <label for="oem">OEM:</label>
+            <select name="oem[]" required>
+                {% for oem in get_oem %}
+                <option value="{{ oem }}">{{ oem }}</option>
+                {% endfor %}
+            </select><br><br>
+            <label for="sent_to">Sent To:</label>
+            <input type="datetime-local" name="sent_to[]"><br><br>
+            
+            <label for="remarks">Remarks:</label><br>
+            <textarea name="remarks[]" rows="4" cols="50"></textarea><br><br>
+        </div>
+        <button type="submit" name="insert">Insert</button>
+    </form>
+    </div>
+
+    <!-- Update Form -->
+    <div class="update-box">
+    <h1>Update Existing Record</h1>
+    {% for entry in existing_data %}
+        <table>
+            <form method="post" action="{{ url_for('update_oem_in_tenders', t_id=t_id) }}">
+                <thead>
+                    <tr>
+                        <th class="len1">OEM</th>
+                        <th class="len">Status</th>
+                        <th class="len">Send Date</th>
+                        <th class="len">Received Date</th>
+                        <th>Remarks</th>
+                        <th class="len2">Update</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="len">
+                            <input type="hidden" name="oem" value="{{ entry[0] }}" readonly>
+                            {{ entry[0] }}
+                        </td>
+                        <td>
+                            <select name="status" class="len">
+                                <option value="shortlisted" {% if entry[1] == 'shortlisted' %}selected{% endif %}>Shortlisted</option>
+                                <option value="Mail Send" {% if entry[1] == 'Mail Send' %}selected{% endif %}>Mail Send</option>
+                                <option value="Response Received" {% if entry[1] == 'Response Received' %}selected{% endif %}>Response Received</option>
+                                <option value="OEM Denied" {% if entry[1] == 'OEM Denied' %}selected{% endif %}>OEM Denied</option>
+                                <option value="Deviation Received" {% if entry[1] == 'Deviation Received' %}selected{% endif %}>Deviation Received</option>
+                                <option value="All Doc Received" {% if entry[1] == 'All Doc Received' %}selected{% endif %}>All Doc Received</option>
+                            </select>
+                        </td>
+                        <td>{{ entry[2] }}</td>
+                        <td><input type="datetime-local" name="rec_date"></td>
+                        <td><textarea name="remarks" rows="4" cols="50">{{ entry[3] }}</textarea></td>
+                        <td>
+                            <input type="hidden" name="update_entry" value="{{ loop.index }}">
+                            <button type="submit" name="update">Update</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </form>
+        </table>
+    {% endfor %}
+    </div>
+</body>
+</html>

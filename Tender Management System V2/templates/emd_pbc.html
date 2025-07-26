@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Tender EMD/PBG Details</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        .bg-details {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">Update Tender EMD/PBG Details</h1>
+        <form id="updateForm" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+            <!-- EMD Required Section -->
+            <div class="form-group">
+                <label for="emd_required">EMD Required:</label>
+                <select class="form-control" id="emd_required" name="emd_required">
+                    <option value="Yes" {% if emd_required == 'Yes' %}selected{% endif %}>Yes</option>
+                    <option value="No" {% if emd_required == 'No' %}selected{% endif %}>No</option>
+                    <option value="exempted" {% if emd_required == 'exempted' %}selected{% endif %}>Exempted</option>
+                </select>
+            </div>
+
+            <!-- EMD Form Section -->
+            <div class="form-group">
+                <label>EMD Form:</label><br>
+                <p>Last entered EMD Form is '{{ emd_form }}'</p>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="pbg_checkbox" name="emd_form[]" value="PBG" {% if emd_form and 'PBG' in emd_form %}checked{% endif %}>
+                    <label class="form-check-label" for="pbg_checkbox">PBG</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="fd_checkbox" name="emd_form[]" value="FD" {% if emd_form and 'FD' in emd_form %}checked{% endif %}>
+                    <label class="form-check-label" for="fd_checkbox">FD</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="dd_checkbox" name="emd_form[]" value="DD" {% if emd_form and 'DD' in emd_form %}checked{% endif %}>
+                    <label class="form-check-label" for="dd_checkbox">DD</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="bc_checkbox" name="emd_form[]" value="Bankers Cheque" {% if emd_form and 'Bankers Cheque' in emd_form %}checked{% endif %}>
+                    <label class="form-check-label" for="bc_checkbox">Bankers Cheque</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="online_checkbox" name="emd_form[]" value="Online" {% if emd_form and 'Online' in emd_form %}checked{% endif %}>
+                    <label class="form-check-label" for="online_checkbox">Online</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="portal_checkbox" name="emd_form[]" value="Online Portal" {% if emd_form and 'Online Portal' in emd_form %}checked{% endif %}>
+                    <label class="form-check-label" for="portal_checkbox">Online Portal</label>
+                </div>
+            </div>
+
+            <!-- EMD Amount -->
+            <div class="form-group">
+                <label for="emd_amount">EMD Amount:</label>
+                <input type="text" class="form-control" id="emd_amount" name="emd_amount" value="{{ emd_amount }}">
+            </div>
+
+            <div class="form-group">
+                <label for="in_favour_of">In Favour Of:</label>
+                <input type="text" class="form-control" id="in_favour_of" name="in_favour_of" value="{{ in_favour_of }}">
+            </div>
+
+            <div class="form-group">
+                <label for="emd_exp_dt">EMD Expiry Date:</label>
+                <input type="datetime-local" class="form-control" id="emd_exp_dt" name="emd_exp_dt" value="{{ emd_exp_dt }}">
+            </div>
+
+            <div class="form-group">
+                <label for="remarks">Remarks:</label>
+                <textarea class="form-control" id="remarks" name="remarks" rows="3">{{ remarks }}</textarea>
+            </div>
+            {% if session['username']=='RamitC' %}
+            <!-- Collapsible BG Details Section -->
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#bgDetails">Unfold BG Details</button>
+                    <div id="bgDetails" class="collapse bg-details">
+                        <h4>BG Details (This is in development, please do not use this section)</h4>
+                        <div class="form-group">
+                            <label for="bank">Bank:</label>
+                            <input type="text" class="form-control" id="bank" name="bank" placeholder="Enter Bank Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="bg_ref_no">BG Reference Number:</label>
+                            <input type="text" class="form-control" id="bg_ref_no" name="bg_ref_no" placeholder="Enter BG Reference Number">
+                        </div>
+                        <div class="form-group">
+                            <label for="bg_issue_date">BG Issue Date:</label>
+                            <input type="date" class="form-control" id="bg_issue_date" name="bg_issue_date">
+                        </div>
+                        <div class="form-group">
+                            <label for="bg_outstanding">BG Outstanding:</label>
+                            <input type="number" class="form-control" id="bg_outstanding" name="bg_outstanding" placeholder="Enter BG Outstanding Amount">
+                        </div>
+                        <div class="form-group">
+                            <label for="beneficiary_name">Beneficiary Name:</label>
+                            <input type="text" class="form-control" id="beneficiary_name" name="beneficiary_name" placeholder="Enter Beneficiary Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status:</label>
+                            <select class="form-control" id="status" name="status">
+                                <option value="under_approvals" {% if status == 'under_approvals' %}selected{% endif %}>Under Approvals</option>
+                                <option value="fdr_created" {% if status == 'fdr_created' %}selected{% endif %}>FDR Created (Must Update FDR Number)</option>
+                                <option value="applied" {% if status == 'applied' %}selected{% endif %}>Applied</option>
+                                <option value="issued" {% if status == 'issued' %}selected{% endif %}>Issued</option>
+                                <option value="cancellation_applied" {% if status == 'cancellation_applied' %}selected{% endif %}>Cancellation Applied</option>
+                                <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fdr_no">FDR Number:</label>
+                            <input type="text" class="form-control" id="fdr_no" name="fdr_no" placeholder="Enter FDR Number">
+                        </div>
+                        <div class="form-group">
+                            <label for="date_of_closure">Date of Closure:</label>
+                            <input type="date" class="form-control" id="date_of_closure" name="date_of_closure">
+                        </div>
+                        <div class="form-group">
+                            <label for="difference">Difference:</label>
+                            <input type="text" class="form-control" id="difference" name="difference" placeholder="Enter Difference">
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Upload Documents -->
+            <div class="form-group">
+                <label for="document">Upload EMD Documents:</label>
+                <input type="file" id="document" name="document" multiple>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function validateForm() {
+            // Get the selected status and FDR number field
+            const status = document.getElementById("status").value;
+            const fdrNo = document.getElementById("fdr_no").value;
+
+            // Check if status is "FDR Created" and FDR number is empty
+            if (status === "fdr_created" && fdrNo.trim() === "") {
+                alert("FDR Number is required when the status is 'FDR Created'.");
+                return false;
+            }
+
+            // Form is valid
+            return true;
+        }
+    </script>
+</body>
+</html>

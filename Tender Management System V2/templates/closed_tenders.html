@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Closed Tenders</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
+            body {
+                margin: 20px;
+                overflow-x: hidden; /* Prevent horizontal scrolling */
+            }
+    
+            .form-row {
+                margin-bottom: 10px;
+            }
+    
+            .action-btn {
+                display: flex;
+                justify-content: center;
+            }
+    
+            .action-btn a {
+                margin-right: 5px;
+                margin-top: 5px;
+            }
+            
+            .action-btn a:hover {
+                text-decoration: none;
+            }
+    
+            th {
+                background-color: #8fb6db;
+                text-align: center;
+                padding: 8px;
+                white-space: wrap; /* Prevent text wrapping */
+            }
+    
+            td, th {
+                padding: 8px;
+                font-size: 12px; /* Adjust font size for a more compact layout */
+                white-space: normal; /* Allow text to wrap */
+            }
+    
+            tr:nth-child(even) {
+                background-color: #ffffff;
+            }
+    
+            tr:hover {
+                background-color: #d2b7f5;
+            }
+
+            .form-control {
+                font-size: 11px; /* Adjust font size for form controls */
+            }
+            
+            label {
+                font-size: 11px; /* Adjust font size for labels */
+            }
+
+            .table-responsive {
+                overflow-x: auto; /* Enable horizontal scrolling for small screens */
+            }
+        </style>
+</head>
+<body>
+    <div>
+        <h1 class="mt-4">Closed Tenders</h1>
+        <a href="{{ url_for('tenders') }}" class="btn btn-secondary mb-3">Go to Main Page</a>
+        <form>
+            <div class="form-row">
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="filter_tender_id" placeholder="Tender ID">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="filter_customer" placeholder="Customer">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="filter_name_of_work" placeholder="Name of Work">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" name="filter_done" placeholder="Status">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Sl No.</th>
+                        <th>Tender ID</th>
+                        <th>Customer</th>
+                        <th class="wider-column">Name of Work</th>
+                        <th>Submission Date</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                        <th>Lose Reason</th>
+                        <th>Lose Remarks</th>
+                        <th>L1 Amount</th>
+                        <th>Our Amount</th>
+                        {% if user_id in ('') %}
+                            <th>Inserted Time</th>
+                        {% endif %}
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tender in tenders %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ tender[0] }}</td>
+                        <td>{{ tender[1] }}</td>
+                        <td class="wider-column">{{ tender[2] }}</td>
+                        <td>{{ tender[3] }}</td>
+                        <td>{{ tender[6] }}</td>
+                        <td>{{ tender[7] }}</td>
+                        <td>{{ tender[9] }}</td>
+                        <td>{{ tender[10] }}</td>
+                        <td>{{ tender[11] }}</td>
+                        <td>{{ tender[12] }}</td>
+                        {% if user_id in ('') %}
+                            <td>{{ tender[8] }}</td>
+                        {% endif %}
+                        <td class="action-btn">
+                            <a href="{{ url_for('view_tender_details', tender_id=tender[0]) }}" class="btn btn-primary">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

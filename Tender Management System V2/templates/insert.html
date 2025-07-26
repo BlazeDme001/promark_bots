@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Insert Data</title>
+    <style>
+        body {
+            /* background-color: linear-gradient(to right, #0b40ec, #9ea6ec, #85ec25); */
+            background-color: #ccd1fa;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        form {
+            width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 20px 100px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="datetime-local"],
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #33b749;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #23527c;
+        }
+
+        p {
+            color: #333;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .error {
+            color: #ff0000;
+        }
+        .notification {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Insert Data</h1>
+    <a href="{{ url_for('tenders') }}" class="btn btn-primary">Back to Tenders Tenders</a>
+    <form method="POST" action="/insert" enctype="multipart/form-data" onsubmit="disableButton()">
+        <label for="tender_id">Tender ID:</label>
+        <input type="text" id="tender_id" name="tender_id" required>
+        <p id="notification" class="notification"></p>
+
+        <label for="customer">Customer:</label>
+        <input type="text" id="customer" name="customer" required>
+
+        <label for="location">Location:</label>
+        <input type="text" id="location" name "location" required>
+
+        <label for="name_of_work">Name of Work:</label>
+        <input type="text" id="name_of_work" name="name_of_work" required>
+
+        <label for="publish_date">Publish Date:</label>
+        <input type="datetime-local" id="publish_date" name="publish_date" required>
+
+        <label for="submission_date">Submission Date:</label>
+        <input type="datetime-local" id="submission_date" name="submission_date" required>
+
+        <label for="emd">EMD:</label>
+        <input type="text" id="emd" name="emd" required>
+
+        <label for="pbg">Pre-Bid Meeting:</label>
+        <input type="datetime-local" id="pbg" name="pbg">
+
+        <label for="estimated_value">Estimated Value:</label>
+        <input type="text" id="estimated_value" name="estimated_value" required>
+
+        <label for="link">Site Address (URL):</label>
+        <input type="text" id="link" name="link" required>
+
+        <label for="document">Upload Documents:</label>
+        <input type="file" id="document" name="document" multiple>
+        
+        <input type="submit" value="Submit">
+    </form>
+
+    {% if success %}
+        <p class="success">Data inserted successfully!</p>
+        <form method="GET" action="/insert" onsubmit="disableButton()">
+            <input type="submit" value="Insert New Data">
+        </form>
+    {% elif error %}
+        <p class="error">Error inserting data : {{ error }}</p>
+        <form method="GET" action="/insert" onsubmit="disableButton()">
+            <input type="submit" value="Try Again">
+        </form>
+    {% endif %}
+    <script>
+
+        var tData = {{ t_data | tojson }};
+
+        var tenderIdInput = document.getElementById("tender_id");
+        var notification = document.getElementById("notification");
+        var submitBtn = document.querySelector("input[type=submit]");
+
+        function updateNotificationAndButton() {
+            var enteredTenderId = tenderIdInput.value;
+
+            if (tData.includes(enteredTenderId)) {
+                notification.textContent = "This Tender ID already exists.";
+                submitBtn.disabled = true;
+            } else {
+                notification.textContent = "";
+                submitBtn.disabled = false;
+            }
+        }
+
+        tenderIdInput.addEventListener("input", updateNotificationAndButton);
+    </script>
+</body>
+</html>
