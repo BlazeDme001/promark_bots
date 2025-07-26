@@ -68,7 +68,7 @@ def main():
         total_pages = driver.find_element(By.XPATH, '//*[@id="light-pagination"]/a[6]')
         tp = total_pages.text
        # print(f"Total pages: {total_pages}")
-       # tp = 5
+        tp = 50
     except:
         tp = 1
 
@@ -139,8 +139,7 @@ def job():
 
 
 if __name__ == '__main__':
-    schedule.every().day.at('12:13').do(job)
-    
+    schedule.every().day.at('11:15').do(job)    
     # schedule.every().day.at('10:00').do(job)
     # schedule.every().day.at('13:00').do(job)
 

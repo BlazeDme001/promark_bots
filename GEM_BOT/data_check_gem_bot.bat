@@ -1,2 +1,5 @@
+@echo off
 title GEM Data Check
-python data_check.py
+call "E:\Code_setup\main_venv\Scripts\activate.bat"
+python "E:\Code_setup\python_setup\promark_bots\GEM_BOT\data_check.py"
+pause

@@ -194,6 +194,16 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+# Ignore all CSV files
+*.csv
+
+# Ignore Excel files (.xls and .xlsx)
+*.xls
+*.xlsx
+
+# Ignore all PDF files
+*.pdf
+
 # Cursor
 #  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
 #  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data

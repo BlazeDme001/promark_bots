@@ -1,6 +1,7 @@
 import subprocess
 import platform
 import sys
+import os
 
 def run_py_in_terminal(file_name):
     full_name = f"{file_name}.py"
@@ -8,11 +9,18 @@ def run_py_in_terminal(file_name):
     print(f"[INFO] Launching {full_name} in a new terminal window.")
 
     if cur_os == "Windows":
-        # Use 'start' to open a new Command Prompt window and run the script
-        subprocess.Popen([
-            "cmd", "/c",
-            f"start cmd /k {sys.executable} {full_name}"
-        ])
+        venv_activate = r"E:\Code_setup\main_venv\Scripts\activate.bat"
+        script_dir = r"E:\Code_setup\python_setup\promark_bots\GEM_BOT"
+        full_script_path = f"{script_dir}\\{full_name}"
+        # Create a temporary .bat file to launch the script with venv
+        bat_file = os.path.join(script_dir, f"run_{file_name}.bat")
+        with open(bat_file, 'w') as f:
+            f.write(f'@echo off\n')
+            f.write(f'title {file_name}\n')
+            f.write(f'call "{venv_activate}"\n')
+            f.write(f'python "{full_script_path}"\n')
+            f.write('pause\n')
+        os.startfile(bat_file)
     elif cur_os == "Linux":
         # For GNOME Terminal
         subprocess.Popen([

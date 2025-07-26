@@ -33,12 +33,6 @@ prefs = {
 chrome_options.add_experimental_option('prefs', prefs)
 
 
-# def get_latest_downloaded_file():
-#     list_of_files = glob.glob(os.path.join(download_folder, '*'))
-#     latest_file = max(list_of_files, key=os.path.getctime)
-#     return latest_file
-
-
 def get_latest_downloaded_file(type):
     list_of_files = glob.glob(os.path.join(download_folder, '*'))
     if type == 'pdf':
@@ -60,7 +54,6 @@ def extract_links_from_pdf(pdf_path):
         page = doc.load_page(i)
         links_on_page = page.get_links()
         links.extend(links_on_page)
-
     return links
 
 
@@ -123,10 +116,8 @@ def extract_tables_from_pdf(pdf_path):
         # Iterate over all pages in the PDF
         for page_number in range(len(pdf.pages)):
             page = pdf.pages[page_number]
-
             # Extract tables from the page
             tables = page.extract_tables()
-
             # Iterate over extracted tables
             for table_number, table in enumerate(tables):
                 # print(f"Page {page_number + 1}, Table {table_number + 1}:")
@@ -155,23 +146,19 @@ def extract_tables_from_pdf(pdf_path):
                                 d['location'] = str(table[1][2]).replace('\n',' ').replace('*','')
                         except:
                             pass
-
     return d
 
 def check_db(data):
     tender_ids = data['bid_no_1'].to_list()
     query = f"SELECT tender_id, submission_date FROM tender.tender_management WHERE tender_id in {tuple(tender_ids)};"
     db_data = db.get_row_as_dframe(query) 
-
     np_db = data[~data['bid_no_1'].isin(db_data['tender_id'].tolist())] 
     np_db.drop('Unnamed: 0', axis=1)
-
     p_db_1 = data[data['bid_no_1'].isin(db_data['tender_id'].tolist())]
     p_db_2 = p_db_1[['bid_no_1', 'End Date']]
     db_data = db_data.rename(columns={'tender_id': 'bid_no_1', 'submission_date': 'End Date'})
     new_df = p_db_2.merge(db_data, how='outer', indicator=True)
     new_df = new_df[new_df['_merge']=='left_only']
-
     new_df.drop('_merge', axis=1)
     p_db = new_df
     try:
@@ -184,10 +171,8 @@ def check_db(data):
 
 def main():
     print('Starting the bot')
-
     data = read_df()
     np_db, p_db, check_cor = check_db(data)
-
     if not p_db.empty:
         p_list = []
         for _, row in p_db.iterrows():
@@ -214,20 +199,14 @@ def main():
         GEM BOT
         """
         mail.send_mail(to_add, to_cc, sub, body)
-
-
     if np_db.empty:
         return None
-
-    # driver = webdriver.Chrome(options=chrome_options)
     driver = webdriver.Chrome(options=chrome_options)
     driver.get('https://bidplus.gem.gov.in/all-bids')
-
     t_dict = {}
-
     for _, row in np_db.iterrows():
         print(row['BID NO'])
-        # print(1)
+        print(1)
         try:
             wi.processing_check_wait(driver, xpath='//*[@id="searchBid"]', time=300)
             bid_search = driver.find_element(By.XPATH, '//*[@id="searchBid"]')
@@ -243,9 +222,9 @@ def main():
                 bid_file.click()
                 bids_page_data = driver.find_elements(By.CLASS_NAME, "card")
                 # nas_path = os.path.join(os.getcwd(), 'NAS', str(row['bid_no_1']))
-                nas_path = os.path.join(r'\\Digitaldreams\tender auto', str(row['bid_no_1']))
-                # nas_path = os.path.join(r'\\Digitaldreams\tender auto', 'GEM_2025_B_5847516')
-                # nas_path = os.path.join(r'\\Digitaldreams\tender auto', 'er')
+                nas_path = os.path.join(r'E:\Files_dump', str(row['bid_no_1']))
+                # nas_path = os.path.join(r'E:\Files_dump', 'GEM_2025_B_5847516')
+                # nas_path = os.path.join(r'E:\Files_dump', 'er')
                 # nas_path = os.path.join(r'/abcd/tender_auto', 'testing_1')
                 check_folder = os.makedirs(nas_path, exist_ok=True)
                 time.sleep(5)
@@ -254,7 +233,6 @@ def main():
                 #     os.makedirs(os.path.join(os.getcwd(), 'downloads'))
                 # except:
                 #     pass
-
                 tables_of_gem = {
                                 'Bid End Date': None,
                                 'Department Name': None,
@@ -266,15 +244,12 @@ def main():
                             }
                 try:
                     tries = 0
-                    while tries < 12:
+                    while tries < 10:
                         tries += 1
                         try:
                             latest_file = get_latest_downloaded_file('pdf')
-
                             tables_of_gem = extract_tables_from_pdf(latest_file)
-
                             f_name = os.path.basename(latest_file)
-
                             urls = extract_links_from_pdf(latest_file)
                             new_file_path = os.path.join(nas_path, f_name)
                             shutil.move(latest_file, new_file_path)
@@ -285,23 +260,17 @@ def main():
                                 # mail.send_mail(to_add=['preetinder@digital-dreams.in'], to_cc=['ramit.shreenath@gmail.com'], sub=f'Files path for tender id {new_paths_to_NAS}', body=body)
                             except Exception as err:
                                 print(f"Error in download pdfs, Error: {str(err)}")
-
                             os.rmdir(download_folder)
                             os.makedirs(os.path.join(os.getcwd(), 'downloads'))
                             break
                         except:
                             time.sleep(5)
-
                 except:
                     pass
-
                 inserted_time = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
                 user_id = username = 'GEM BOT'
                 link = 'https://bidplus.gem.gov.in/'
-
                 pbm_date = datetime.datetime.strptime(tables_of_gem['Pre-Bid Date'], '%d-%m-%Y %H:%M:%S').strftime('%Y-%m-%d %H:%M') if tables_of_gem['Pre-Bid Date'] else ''
-
-
                 query = f"""INSERT INTO tender.tender_management (local_tender_id, tender_id, customer, name_of_work,
                 submission_date, link, file_location, folder_location, inserted_time, user_id, inserted_user_id, publish_date,
                 verification_1, file_name, "location", pbm, emd) 
@@ -309,9 +278,7 @@ def main():
                 '{str(row['new_itm']).replace("'","''")}', '{str(row['End Date'])}', '{link}', '{new_file_path}',
                 '{nas_path}', '{inserted_time}', '{user_id}', '{username}', '{str(row['Start Date'])}', 'FOR UPDATE', '{str(f_name)}',
                 '{str(tables_of_gem['location'])}', '{pbm_date}', '{str(tables_of_gem['EMD Amount'])}');"""
-
                 db.execute(query)
-
                 emd_dict = {
                     "tender_id": str(row['bid_no_1']),
                     "emd_required": "YES" if tables_of_gem['EMD Amount'] else "NO",
@@ -322,9 +289,7 @@ def main():
                     "remarks": "EMD Details Not Inserted",
                     "time_stamp": datetime.datetime.now().strftime("%d-%b-%Y %H:%M:%S")
                 }
-
                 db.insert_dict_into_table("tender.tender_emd", emd_dict)
-
                 folder_dict = {
                     "tender_id": str(row['bid_no_1']),
                     "current_time_col": inserted_time,
@@ -340,30 +305,26 @@ def main():
                     if not check_data_tat:
                         tat_query = f"""INSERT INTO tender.tender_tat (t_id, stage, status, assign_time, assign_to, ext_col_1)
                                         VALUES ('{str(row['bid_no_1'])}', 'FOR UPDATE', 'Open', NOW(), '{ass_name}', '{username}'); """
-
                         db.execute(tat_query)
                 except Exception as err:
                     print(err)
                     pass
-
                 try:
                     t_dict[row['bid_no_1']] = str(f_name)
                 except:
                     pass
             except Exception as e:
                 print(str(e))
-                raise Exception(f'Portal Loading error for {row['bid_no_1']}')
+                raise Exception(f"Portal Loading error for {row['bid_no_1']}")
         except Exception as err:
             print(str(err))
             body = f'''Hello Team,\n\nBelow error found\nError:{str(err)}\n\n\nThanks,GEM BOT'''
             mail.send_mail(to_add=['ramit.shreenath@gmail.com'], to_cc=[],sub='Error in Gem Portal', body=body)
             pass
-
     try:
         mail.send_mail(to_add=['ramit.shreenath@gmail.com'], to_cc=[], sub=f'GEM Inserted Tenders {datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")}', body=t_dict)
     except:
         pass
-
     try:
         driver.close()
     except:
@@ -380,7 +341,7 @@ def job():
 
 if __name__ == '__main__':
     schedule.every().day.at('05:00').do(job)
-    schedule.every().day.at('13:00').do(job)
+    schedule.every().day.at('12:57').do(job)
     # schedule.every().day.at('13:46').do(job)
 
     while True:
