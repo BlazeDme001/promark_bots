@@ -301,45 +301,24 @@ def insert():
             if count > 0:
                 return "Data already exists in the database!"
 
-            current_session = requests.Session()
-            current_session.auth = (NAS_USERNAME, NAS_PASSWORD)
+            import pathlib  # Make sure this is imported at top
+
+            local_base_folder = r"E:\Files_dump"
+            local_tender_folder = os.path.join(local_base_folder, tender_id)
+            os.makedirs(local_tender_folder, exist_ok=True)
+
             nas_file_paths = []
+            files = request.files.getlist('document')
+            for file in files:
+                if file:
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(local_tender_folder, filename)
+                    file.save(file_path)
+                    nas_file_paths.append(file_path)
 
-            with paramiko.SSHClient() as ssh_client:
-                ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh_client.connect(NAS_HOST, NAS_PORT, NAS_USERNAME, NAS_PASSWORD)
-
-                nas_tender_folder = os.path.join(NAS_UPLOAD_FOLDER, tender_id)
-
-                try:
-                    sftp = ssh_client.open_sftp()
-                    try:
-                        sftp.mkdir(nas_tender_folder, mode=0o755)
-                    except:
-                        pass
-                    sftp.close()
-                except Exception as e:
-                    return "Failed to create tender folder on NAS"
-
-                files = request.files.getlist('document')
-                for file in files:
-                    if file:
-                        filename = secure_filename(file.filename)
-                        nas_file_path = os.path.join(nas_tender_folder, filename)
-
-                        with NamedTemporaryFile(delete=False) as tmp_file:
-                            file.save(tmp_file.name)
-
-                            try:
-                                sftp = ssh_client.open_sftp()
-                                sftp.chdir(nas_tender_folder)
-                                sftp.put(tmp_file.name, filename)
-                                sftp.close()
-                                nas_file_paths.append(nas_file_path)
-                            except Exception as e:
-                                logger.error(f"Failed to upload file to NAS: {str(e)}")
 
             folder_location = os.path.join(NAS_UPLOAD_FOLDER_1, tender_id)
+            folder_location = local_tender_folder
             nas_file_paths_string = ','.join(nas_file_paths)
             inserted_time = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
             query = """INSERT INTO tender.tender_management (tender_id, customer, location, name_of_work,
@@ -679,37 +658,23 @@ def update_tender_status_remarks(tender_id):
         if not varification:
             varification = 'approved'
 
-        current_session = requests.Session()
-        current_session.auth = (NAS_USERNAME, NAS_PASSWORD)
-        nas_file_paths = []
-        with paramiko.SSHClient() as ssh_client:
-            ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh_client.connect(NAS_HOST, NAS_PORT, NAS_USERNAME, NAS_PASSWORD)
+        local_base_folder = r"E:\Files_dump"
+        local_tender_folder = os.path.join(local_base_folder, tender_id)
+        os.makedirs(local_tender_folder, exist_ok=True)
 
-            nas_tender_folder = NAS_UPLOAD_FOLDER + tender_id
-
-            files = request.files.getlist('document')
-            for file in files:
-                if file:
-                    filename = secure_filename(file.filename)
-
-                    with NamedTemporaryFile(delete=False) as tmp_file:
-                        file.save(tmp_file.name)
-
-                        try:
-                            sftp = ssh_client.open_sftp()
-                            sftp.chdir(nas_tender_folder)
-                            sftp.put(tmp_file.name, filename)
-                            sftp.close()
-                        except Exception as e:
-                            logger.error(f"Failed to upload file to NAS: {str(e)}")
+        files = request.files.getlist('document')
+        for file in files:
+            if file:
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(local_tender_folder, filename)
+                try:
+                    file.save(file_path)
+                    logger.info(f"File saved locally at {file_path}")
+                except Exception as e:
+                    logger.error(f"Failed to save file locally: {str(e)}")
 
         query = "UPDATE tender.tender_management SET done = %s, remarks = %s, user_id = %s, submitted_value = %s, verification_1 = %s "
         parameters = [status, remarks, user_id, s_amt, varification]
-
-        # if varification:
-        #     query += ", verification_1 = %s"
-        #     parameters.append(varification)
 
         if r_rsn:
             query += ", rej_rsn = %s"
@@ -944,36 +909,20 @@ def update_emd_details(tender_id):
             logger.error(f"Error while preparing BG details: {str(e)}")
             bg_details = None
 
-        current_session = requests.Session()
-        current_session.auth = (NAS_USERNAME, NAS_PASSWORD)
+        local_base_folder = r"E:\Files_dump"
+        emd_folder = os.path.join(local_base_folder, tender_id, "EMD Documents")
+        os.makedirs(emd_folder, exist_ok=True)
 
-        nas_file_paths = []
-        with paramiko.SSHClient() as ssh_client:
-            ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh_client.connect(NAS_HOST, NAS_PORT, NAS_USERNAME, NAS_PASSWORD)
-            nas_tender_folder = NAS_UPLOAD_FOLDER + tender_id + '/EMD Documents'
-            try:
-                sftp = ssh_client.open_sftp()
-                sftp.mkdir(nas_tender_folder, mode=0o755)
-                sftp.close()
-            except Exception as e:
-                pass
-
-            files = request.files.getlist('document')
-            for file in files:
-                if file:
-                    filename = secure_filename(file.filename)
-
-                    with NamedTemporaryFile(delete=False) as tmp_file:
-                        file.save(tmp_file.name)
-
-                        try:
-                            sftp = ssh_client.open_sftp()
-                            sftp.chdir(nas_tender_folder)
-                            sftp.put(tmp_file.name, filename)
-                            sftp.close()
-                        except Exception as e:
-                            logger.error(f"Failed to upload file to NAS: {str(e)}")
+        files = request.files.getlist('document')
+        for file in files:
+            if file:
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(emd_folder, filename)
+                try:
+                    file.save(file_path)
+                    logger.info(f"EMD file saved locally at: {file_path}")
+                except Exception as e:
+                    logger.error(f"Failed to save EMD file locally: {str(e)}")
 
         folder_location = os.path.join(NAS_UPLOAD_FOLDER_1, tender_id, "EMD Documents")
 
@@ -1118,49 +1067,23 @@ def view_EMD_BG_details(tender_id, emd_id):
                 file_loc = emd_details[0][11]
             except:
                 file_loc = None
-            # file_loc = upload_emd_file_to_nas(tender_id, files) if files else emd_details[0][11]
             if files:
-            # Doc upload logic ==============================================
-                current_session = requests.Session()
-                current_session.auth = (NAS_USERNAME, NAS_PASSWORD)
+                local_base_folder = r"E:\Files_dump"
+                emd_folder = os.path.join(local_base_folder, tender_id, "EMD Documents")
+                os.makedirs(emd_folder, exist_ok=True)
 
-                nas_file_paths = []
-                with paramiko.SSHClient() as ssh_client:
-                    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                    ssh_client.connect(NAS_HOST, NAS_PORT, NAS_USERNAME, NAS_PASSWORD)
-                    nas_tender_folder = os.path.join(NAS_UPLOAD_FOLDER, tender_id, 'EMD Documents')
-
-                    try:
-                        sftp = ssh_client.open_sftp()
+                for file in files:
+                    if file:
+                        filename = secure_filename(file.filename)
+                        file_path = os.path.join(emd_folder, filename)
                         try:
-                            sftp.chdir(nas_tender_folder)  # Change to the directory
-                            print(f"Folder already exists: {nas_tender_folder}")
-                        except IOError:  # Folder does not exist
-                            print(f"Folder does not exist. Creating: {nas_tender_folder}")
-                            sftp.mkdir(nas_tender_folder, mode=0o755)
-                            sftp.chdir(nas_tender_folder)  # Change to the newly created folder
+                            file.save(file_path)
+                            logger.info(f"EMD file saved locally at: {file_path}")
+                        except Exception as e:
+                            logger.error(f"Failed to save EMD file locally: {str(e)}")
 
-                        # Upload each file
-                        for file in files:
-                            if file:
-                                filename = secure_filename(file.filename)
-                                print(f"Uploading file: {filename}")
-                                
-                                with NamedTemporaryFile(delete=False) as tmp_file:
-                                    file.save(tmp_file.name)
-                                    sftp.put(tmp_file.name, filename)  # Upload file
-                                    print(f"File uploaded successfully: {filename}")
+                file_loc = emd_folder  # Update to use this as storage path
 
-                        sftp.close()
-
-                        # Update file location
-                        file_loc = os.path.join(NAS_UPLOAD_FOLDER_1, tender_id, "EMD Documents")
-                        print(f"File location set to: {file_loc}")
-
-                    except Exception as e:
-                        print(f"Error during folder handling or file upload: {e}")
-                        logger.error(f"Error during folder handling or file upload: {str(e)}")
-                # ==============================================
             bg_details = {
                 key.replace('bg_details[', '').rstrip(']'): value
                 for key, value in request.form.items() if key.startswith('bg_details[')
@@ -1257,43 +1180,6 @@ def view_EMD_BG_details(tender_id, emd_id):
         return redirect(url_for('emd_list'))
 
 
-# def upload_emd_file_to_nas(tender_id,files):
-    
-#         current_session = requests.Session()
-#         current_session.auth = (NAS_USERNAME, NAS_PASSWORD)
-
-#         nas_file_paths = []
-#         with paramiko.SSHClient() as ssh_client:
-#             ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-#             ssh_client.connect(NAS_HOST, NAS_PORT, NAS_USERNAME, NAS_PASSWORD)
-
-#             nas_tender_folder = NAS_UPLOAD_FOLDER + tender_id + '/EMD Documents'
-
-#             try:
-#                 sftp = ssh_client.open_sftp()
-#                 sftp.mkdir(nas_tender_folder, mode=0o755)
-#                 sftp.close()
-#             except Exception as e:
-#                 pass
-#             for file in files:
-#                 if file:
-#                     filename = secure_filename(file.filename)
-
-#                     with NamedTemporaryFile(delete=False) as tmp_file:
-#                         file.save(tmp_file.name)
-
-#                         try:
-#                             sftp = ssh_client.open_sftp()
-#                             sftp.chdir(nas_tender_folder)
-#                             sftp.put(tmp_file.name, filename)
-#                             sftp.close()
-#                         except Exception as e:
-#                             logger.error(f"Failed to upload file to NAS: {str(e)}")
-
-#         folder_location = os.path.join(NAS_UPLOAD_FOLDER_1, tender_id, "EMD Documents")
-#         return folder_location
-
-
 @app.route('/pending_emd_list/update_emd_status/<tender_id>', methods=['GET', 'POST'])
 @login_required
 def update_EMD_details_fin(tender_id):
@@ -1310,37 +1196,22 @@ def update_EMD_details_fin(tender_id):
 
         time_stamp = datetime.datetime.now().strftime('%d-%b-%Y %H:%M:%S')
 
-        current_session = requests.Session()
-        current_session.auth = (NAS_USERNAME, NAS_PASSWORD)
+        files = request.files.getlist('document')
+        local_base_folder = r"E:\Files_dump"
+        emd_folder = os.path.join(local_base_folder, tender_id, "EMD Documents")
+        os.makedirs(emd_folder, exist_ok=True)
 
-        nas_file_paths = []
-        with paramiko.SSHClient() as ssh_client:
-            ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh_client.connect(NAS_HOST, NAS_PORT, NAS_USERNAME, NAS_PASSWORD)
+        for file in files:
+            if file:
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(emd_folder, filename)
+                try:
+                    file.save(file_path)
+                    logger.info(f"EMD file saved locally at: {file_path}")
+                except Exception as e:
+                    logger.error(f"Failed to save EMD file locally: {str(e)}")
 
-            nas_tender_folder = NAS_UPLOAD_FOLDER + tender_id + '/EMD Documents'
-
-            try:
-                sftp = ssh_client.open_sftp()
-                sftp.mkdir(nas_tender_folder, mode=0o755)
-                sftp.close()
-            except Exception as e:
-                pass
-            files = request.files.getlist('document')
-            for file in files:
-                if file:
-                    filename = secure_filename(file.filename)
-                    with NamedTemporaryFile(delete=False) as tmp_file:
-                        file.save(tmp_file.name)
-                        try:
-                            sftp = ssh_client.open_sftp()
-                            sftp.chdir(nas_tender_folder)
-                            sftp.put(tmp_file.name, filename)
-                            sftp.close()
-                        except Exception as e:
-                            logger.error(f"Failed to upload file to NAS: {str(e)}")
-
-        folder_location = os.path.join(NAS_UPLOAD_FOLDER_1, tender_id, "EMD Documents")
+        folder_location = emd_folder
 
         query = f"""UPDATE tender.tender_emd SET ext_col_1 = '{status}', remarks = '{remarks}', 
         emd_form = '{emd_form}', time_stamp = '{time_stamp}', epbg_file_loc = '{folder_location}'

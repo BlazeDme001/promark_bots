@@ -16,10 +16,7 @@ import datetime
 import send_wp
 
 # Set the path to the Tesseract executable
-# pytesseract.pytesseract.tesseract_cmd = r"D:\Pytes\tesseract-main\tesseract-main"
-pytesseract.pytesseract.tesseract_cmd = r"C:\Users\dme\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
-# tessdata_dir_config = '--tessdata-dir "D:\Pytes\tesseract-main\tesseract-main"'
-# captcha_text = pytesseract.image_to_string(captcha_image, config=tessdata_dir_config)
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # Set up Chrome options for downloads
 chrome_options = Options()
