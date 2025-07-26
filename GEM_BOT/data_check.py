@@ -297,9 +297,7 @@ def main():
                 }
                 db.insert_dict_into_table("tender.tender_folder", folder_dict)
                 try:
-                    ass_name = 'Farzana' if not 'GEM' in str(row['bid_no_1']).upper() else 'Manpreet'
-                    # tat_query = f""" insert into tender.tender_tat (t_id, stage, assign_time, assign_to, ext_col_1) 
-                    # values('{str(row['bid_no_1'])}', 'FOR UPDATE-Open', now(), '{ass_name}', '{username}'); """
+                    ass_name = 'BOT'
                     check_query_tat = f""" select t_id from tender.tender_tat where t_id = '{str(row['bid_no_1'])}' ; """
                     check_data_tat = db.get_data_in_list_of_tuple(check_query_tat)
                     if not check_data_tat:
