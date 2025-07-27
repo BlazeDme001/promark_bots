@@ -4,7 +4,7 @@ import json
 url = "http://whatsapp.zillion.io/api/v1/message/create"
 
 headers = {
-'Username': 'ashish@shreenathgroup.in',
+'Username': '*******',
 'Password': '*******',
 'Content-Type': 'application/json',
 'Authorization': 'Basic *************************'

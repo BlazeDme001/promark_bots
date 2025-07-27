@@ -4,7 +4,7 @@ import json
 url = "http://whatsapp.zillion.io/api/v1/message/create"
 
 headers = {
-'Username': 'ashish@shreenathgroup.in',
+'Username': '*******',
 'Password': '*******',
 'Content-Type': 'application/json',
 'Authorization': 'Basic *************************'
@@ -39,9 +39,8 @@ def send_wp_msg(mob, msg):
     return False
     pass
 
+
 def send_msg_in_group(group_id=None, msg=None):
-    # import requests
-    # import json
     try:
         if not group_id:
             group_id = "120363162363027722@g.us"

@@ -533,7 +533,6 @@ def approve_tenders():
         elif filter_ins_by == 'not_bot':
             filters.append(f" inserted_user_id not ilike '%bot%' ")
 
-
     if filter_assign_start_date or filter_assign_end_date:
         if filter_assign_start_date:
             filters.append('assign_time :: date >= %s')
@@ -544,13 +543,9 @@ def approve_tenders():
             parameters.append(f'{filter_assign_end_date}')
             logger.info(f'End Assign Date {filter_assign_end_date}')
 
-    # Complete the SQL query if any filters are provided
     if filters:
         query += " AND " + " AND ".join(filters)
-
     query += ' order by submission_date asc ;'
-
-    # Retrieve the relevant tenders from the database
     logger.info(query)
     tenders = db.get_data_in_list_of_tuple(query, parameters)
     try:
@@ -561,11 +556,9 @@ def approve_tenders():
             get_oem.append(oem[0])
     except:
         get_oem = []
-
     get_assign_names_query = """ select ud.username from tender.user_details  ud where ud.status = 'ACTIVE'; """
     get_assign_names_data = db.get_data_in_list_of_tuple(get_assign_names_query)
     assign_names = [i[0] for i in get_assign_names_data] if get_assign_names_data else []
-
     return render_template('approve_tenders.html', tenders=tenders, user_id=username, get_oem=get_oem, assign_names=assign_names)
 
 
@@ -605,13 +598,9 @@ def view_tender_details(tender_id):
     else:
         tender = tender_details[0]
         emd = emd_details[0]
-        # folder_path = tender_details[0][12].replace(r'\\Digitaldreams\tender auto', 'mnt/tender_auto/').replace(r'\\','')
-        # folder_path = os.path.join('mnt/tender_auto', tender_id).replace('/','@@')
-        folder_path = os.path.join(r'\\Digitaldreams\tender auto', tender_id)
+        folder_path = os.path.join(LOCAL_BASE_FOLDER, tender_id)
         if 'rejected' in str(tender_details[0][12]).lower():
-            # folder_path = os.path.join('mnt/tender_auto/Rejected Tenders', tender_id).replace('/','@@')
-            folder_path = os.path.join(r'\\Digitaldreams\tender auto\Rejected Tenders', tender_id)
-
+            folder_path = os.path.join(LOCAL_BASE_FOLDER,'Rejected Tenders', tender_id)
         return render_template('view_tender_details.html', tender=tender, folder=folder_path, emd=emd, user_id=str(username))
 
 
@@ -823,8 +812,6 @@ def update_tender_status_remarks(tender_id):
 @app.route('/approve_tenders/view_tender_details/view_files/<folder_path>/<t_id>', methods=['GET', 'POST'])
 @login_required
 def view_files(folder_path, t_id):
-    # folder_path = folder_path.replace('\\Digitaldreams\tender auto', '/mnt/tender_auto/')
-    # folder_path = folder_path.replace('@@', '/').strip()
     folder_path = folder_path
     username = session.get('username')
     logger.info('Current user is %s', str(username))

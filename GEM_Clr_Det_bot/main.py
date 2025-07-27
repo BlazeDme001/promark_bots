@@ -501,7 +501,7 @@ def pend_clar(driver,t_id):
         time.sleep(30)
         driver.save_screenshot('pending_clarf.png')
 
-        to_add = ['ramit.shreenath@gmail.com', 'raman@shreenathgroup.in', 'ASHISH@shreenathgroup.in',  'preetinder@digital-dreams.in', 'gursimran@digital-dreams.in']
+        to_add = ['ramit.shreenath@gmail.com']
         sub = f'Pending Clarification of {t_id}'
         body = f"""
         Hello Team,
@@ -558,7 +558,7 @@ def rep_rejecn(driver,t_id):
 
         driver.save_screenshot('rep_rejection.png')
 
-        to_add = ['ramit.shreenath@gmail.com', 'raman@shreenathgroup.in', 'ASHISH@shreenathgroup.in', 'preetinder@digital-dreams.in', 'gursimran@digital-dreams.in']
+        to_add = ['ramit.shreenath@gmail.com']
         sub = f'Representation/Challenge Rejection {t_id}'
         body = f"""
         Hello Team,
@@ -761,7 +761,7 @@ def insert_task(name,remarks):
 
         sub = f'New Task Assign, Task ID: {next_t_id}'
         to_add = [assign_email]
-        to_cc = ['raman@shreenathgroup.in','ramit.shreenath@gmail.com','ashish@shreenathgroup.in']
+        to_cc = ['ramit.shreenath@gmail.com']
         body = f"""
         Hello {assign_to},
         
