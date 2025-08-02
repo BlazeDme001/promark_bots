@@ -59,7 +59,7 @@ def login():
         user_id = driver.find_element(By.XPATH, '//*[@id="loginid"]')
         user_id.clear()
         user_id.click()
-        user_id.send_keys("sentmhl2")
+        user_id.send_keys("*****")
 
         captcha_element = driver.find_element(By.XPATH, '//*[@id="captcha1"]')
         c_data = get_captcha_text(captcha_element)
@@ -77,8 +77,7 @@ def login():
             password = driver.find_element(By.XPATH, '//*[@id="password"]')
             password.click()
             password.clear()
-            # password.send_keys("December2024@")
-            password.send_keys("Shreenath@2025")
+            password.send_keys("********")
             break
         except:
             time.sleep(5)

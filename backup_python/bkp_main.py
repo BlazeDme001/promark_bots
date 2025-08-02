@@ -50,21 +50,39 @@ def move_bkp_nas(source_file, destination_path):
         print(f"Failed to connect to NAS: {str(e)}")
 
 
+def check_service():
+    url = "http://103.223.15.148:5025//api/services"
+    headers = {"Content-Type": "application/json"}
+    data = {
+        "username": "Promark",
+        "password": "Pm#24",
+        "project": "Promark Groups",
+        "sub_project": "Promark Backup",
+        "service": "Backup Bot"
+    }
+    try:
+        response = requests.post(url, json=data, headers=headers, timeout=30)
+    except:
+        print('Driver stopped')
+        return 'ON', '30'
+
+    if response.status_code == 200 and response.json().get('services'):
+        service_data = response.json()['services'][0]
+        status = service_data.get('status', 'ON')
+        return status
+
+    return 'ON'
+
+
 def create_bkp():
     try:
+        if check_service() == 'OFF':
+            print('Service is not working...')
+            return None
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         backup_dir = 'bkp_files'
         os.makedirs(backup_dir, exist_ok=True)
         backup_file = os.path.join(backup_dir, f'db_backup_{timestamp}.sql')
-
-        # backup_command = [
-        #     'pg_dump',
-        #     '-h', db_host,
-        #     '-p', db_port,
-        #     '-U', db_user,
-        #     '-d', db_name,
-        #     '-f', backup_file
-        # ]
 
         backup_command = f'"{pg_dump_path}" -h {db_host} -p {db_port} -U {db_user} -d {db_name} -f {backup_file}'
 

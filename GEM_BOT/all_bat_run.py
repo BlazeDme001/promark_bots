@@ -2,6 +2,7 @@ import subprocess
 import platform
 import sys
 import os
+import requests
 
 def run_py_in_terminal(file_name):
     full_name = f"{file_name}.py"
@@ -34,7 +35,35 @@ def run_py_in_terminal(file_name):
     else:
         print(f"[ERROR] Unsupported OS: {cur_os}")
 
+
+def check_service():
+    url = "http://103.223.15.148:5025//api/services"
+    headers = {"Content-Type": "application/json"}
+    data = {
+        "username": "Promark",
+        "password": "Pm#24",
+        "project": "Promark Groups",
+        "sub_project": "Promark Gem Bots",
+        "service": "Gem web scrapping and Data check"
+    }
+    try:
+        response = requests.post(url, json=data, headers=headers, timeout=30)
+    except:
+        print('Driver stopped')
+        return 'ON', '30'
+
+    if response.status_code == 200 and response.json().get('services'):
+        service_data = response.json()['services'][0]
+        status = service_data.get('status', 'ON')
+        return status
+
+    return 'ON'
+
+
 def run_in_parallel(file_names):
+    if check_service() == 'OFF':
+        print("Service Not working...")
+        return None
     for name in file_names:
         run_py_in_terminal(name)
 

@@ -65,6 +65,30 @@ def login_required(f):
     return decorated_function
 
 
+def check_service():
+    url = "http://103.223.15.148:5025//api/services"
+    headers = {"Content-Type": "application/json"}
+    data = {
+        "username": "Promark",
+        "password": "Pm#24",
+        "project": "Promark Groups",
+        "sub_project": "Promark Tender Portal",
+        "service": "Meter Reading"
+    }
+    try:
+        response = requests.post(url, json=data, headers=headers, timeout=30)
+    except:
+        print('Driver stopped')
+        return 'ON', '30'
+
+    if response.status_code == 200 and response.json().get('services'):
+        service_data = response.json()['services'][0]
+        status = service_data.get('status', 'ON')
+        return status
+
+    return 'ON'
+
+
 def authenticate(username, password):
     # query = "SELECT * FROM tender.user_details WHERE username = %s AND password = %s"
     query = """select ud.user_id , ud."name" ,ud.username ,ud."password" ,ud.profile ,ud.team ,ud.mobile,ud.email 
@@ -84,6 +108,8 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        if check_service() == 'OFF':
+            return render_template('login.html', error=True)
         user = authenticate(username, password)
         if user:
             session['logged_in'] = True
