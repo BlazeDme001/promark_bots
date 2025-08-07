@@ -139,7 +139,7 @@ def job():
 
 
 if __name__ == '__main__':
-    schedule.every().day.at('11:15').do(job)    
+    schedule.every().day.at('10:49').do(job)    
     # schedule.every().day.at('10:00').do(job)
     # schedule.every().day.at('13:00').do(job)
 
